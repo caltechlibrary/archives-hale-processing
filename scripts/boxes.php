@@ -4,7 +4,7 @@
 $config_file = __DIR__ . "/boxes-config.inc";
 if (file_exists($config_file)) {
   include $config_file;
-  foreach (['boxes_csv','csv_source_file','destination_parent','reel_source_path'] as $config) {
+  foreach (['index_csv','source_csv','destination_parent','reel_source_path'] as $config) {
     if (!file_exists($$config)) {
       $stop = TRUE;
       echo "\n\e[0;91mSTOP!\e[0m The value for \e[0;96m\$$config\e[0m in \e[0;95m$config_file\e[0m is invalid.\n";
@@ -35,7 +35,7 @@ for ($i = 5; $i > 0; $i--) {
 }
 
 // save the csv data to an array
-if (($handle = fopen($boxes_csv, "r")) !== FALSE) {
+if (($handle = fopen($index_csv, "r")) !== FALSE) {
   while (($record = fgetcsv($handle)) !== FALSE) {
     $data[$record[0]] = $record;
   }

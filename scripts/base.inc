@@ -26,7 +26,7 @@
   // 11. create a multi-page pdf file for each folder
   // 12. create a concatenated ocr file for each folder
 
-if (($source_handle = fopen($csv_source_file, "r")) !== FALSE) {
+if (($source_handle = fopen($source_csv, "r")) !== FALSE) {
   // skip the first line
   fgetcsv($source_handle);
   $row = 1;
