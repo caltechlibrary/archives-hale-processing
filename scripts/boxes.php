@@ -10,7 +10,7 @@ if (file_exists($config_file)) {
       echo "\n\e[0;91mSTOP!\e[0m The value for \e[0;96m\$$config\e[0m in \e[0;95m$config_file\e[0m is invalid.\n";
     }
   }
-  if ($stop) {
+  if (!empty($stop)) {
     exit("\nExited. One or more variables in \e[0;95m$config_file\e[0m is invalid.\n");
   }
 }
