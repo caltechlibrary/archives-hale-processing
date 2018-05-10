@@ -1,7 +1,7 @@
 <?php
 
 // check the config file
-$config_file = __DIR__ . "/boxes-config.inc";
+$config_file = __DIR__ . "/config.inc";
 if (file_exists($config_file)) {
   include $config_file;
   foreach (['csv_source_file','destination_parent','reel_source_path'] as $config) {
@@ -15,7 +15,7 @@ if (file_exists($config_file)) {
   }
 }
 else {
-  exit("\n\e[1;91mSTOP!\e[0m the \e[0;96m\$boxes-config.inc\e[0m file does not exist.\n");
+  exit("\n\e[1;91mSTOP!\e[0m the \e[0;96mconfig.inc\e[0m file does not exist.\n");
 }
 
 // check for and supply box number argument
