@@ -4,7 +4,7 @@
 $config_file = __DIR__ . "/config.inc";
 if (file_exists($config_file)) {
   include $config_file;
-  foreach (['csv_source_file','destination_parent','reel_source_path'] as $config) {
+  foreach (['source_csv','destination_parent','reel_source_path'] as $config) {
     if (!file_exists($$config)) {
       $stop = TRUE;
       echo "\n\e[0;91mSTOP!\e[0m The value for \e[0;96m\$$config\e[0m in \e[0;95m$config_file\e[0m is invalid.\n";
