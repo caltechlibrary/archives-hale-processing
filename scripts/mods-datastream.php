@@ -48,37 +48,37 @@ foreach ($tiffs as $fullpath) {
   $time = (microtime(true) - $time_start);
   echo "created MODS... $time\n";
 
-  // create a JP2
-  $time_start = microtime(true);
-  $create_jp2 = "kdu_compress -i $fullpath -o $page_dir/JP2.jp2 -rate 0.5 Clayers=1 Clevels=7 Cprecincts='{256,256},{256,256},{256,256},{128,128},{128,128},{64,64},{64,64},{32,32},{16,16}' Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk='{32,32}' Cuse_sop=yes";
-  exec($create_jp2);
-  $time = (microtime(true) - $time_start);
-  echo "created JP2... $time\n";
+  // // create a JP2
+  // $time_start = microtime(true);
+  // $create_jp2 = "kdu_compress -i $fullpath -o $page_dir/JP2.jp2 -rate 0.5 Clayers=1 Clevels=7 Cprecincts='{256,256},{256,256},{256,256},{128,128},{128,128},{64,64},{64,64},{32,32},{16,16}' Corder=RPCL ORGgen_plt=yes ORGtparts=R Cblk='{32,32}' Cuse_sop=yes";
+  // exec($create_jp2);
+  // $time = (microtime(true) - $time_start);
+  // echo "created JP2... $time\n";
 
-  // create a JPG
-  $time_start = microtime(true);
-  $create_jpg = "convert -quiet $fullpath -quality 75 -resize 600x800 $page_dir/JPG.jpg";
-  exec($create_jpg);
-  $time = (microtime(true) - $time_start);
-  echo "created JPG... $time\n";
+  // // create a JPG
+  // $time_start = microtime(true);
+  // $create_jpg = "convert -quiet $fullpath -quality 75 -resize 600x800 $page_dir/JPG.jpg";
+  // exec($create_jpg);
+  // $time = (microtime(true) - $time_start);
+  // echo "created JPG... $time\n";
 
-  // create a TN
-  $time_start = microtime(true);
-  $create_tn = "convert -quiet $fullpath -thumbnail 200x200 -quality 75 $page_dir/TN.jpg";
-  exec($create_tn);
-  $time = (microtime(true) - $time_start);
-  echo "created TN... $time\n";
-  // copy first page TN.jpg to parent
-  if ($page_num == '0001') {
-    copy("$page_dir/TN.jpg", "$parent_dir/TN.jpg");
-  }
+  // // create a TN
+  // $time_start = microtime(true);
+  // $create_tn = "convert -quiet $fullpath -thumbnail 200x200 -quality 75 $page_dir/TN.jpg";
+  // exec($create_tn);
+  // $time = (microtime(true) - $time_start);
+  // echo "created TN... $time\n";
+  // // copy first page TN.jpg to parent
+  // if ($page_num == '0001') {
+  //   copy("$page_dir/TN.jpg", "$parent_dir/TN.jpg");
+  // }
 
-  // add a PDF datastream for the page
-  $time_start = microtime(true);
-  $create_pdf = "pdfseparate -f $page_num -l $page_num $parent_dir/PDF.pdf $page_dir/PDF.pdf";
-  exec($create_pdf);
-  $time = (microtime(true) - $time_start);
-  echo "created PDF... $time\n";
+  // // add a PDF datastream for the page
+  // $time_start = microtime(true);
+  // $create_pdf = "pdfseparate -f $page_num -l $page_num $parent_dir/PDF.pdf $page_dir/PDF.pdf";
+  // exec($create_pdf);
+  // $time = (microtime(true) - $time_start);
+  // echo "created PDF... $time\n";
 
   $pagetime = (microtime(true) - $pagetime_start);
   echo "\npage processing time: {$pagetime}\n\n";
