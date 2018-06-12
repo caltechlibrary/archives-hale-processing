@@ -11,6 +11,6 @@ for path in "$1"/*; do
   [ -d "${path}" ] || continue # if not a directory, skip
   dirname="$(basename "${path}")"
   echo -e "\n$dirname\n"
-  time drush ibbp --user=1 --type=directory --output_set_id --parent=caltech:hale --scan_target="$1"/"$dirname"
+  time drush ibbp -v --user=1 --type=directory --output_set_id --parent=caltech:hale --scan_target="$1"
   echo -e "\n$dirname 🤖\n"
 done
