@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# @TODO parse `aws s3 ls` command in case the NAS folder structure is not the same as S3
-
 # to be run from cls-image
 
 # display message when no arguments are given
@@ -11,6 +9,7 @@ if [ $# == 0 ]; then
   exit 1
 fi
 
+# @TODO parse `aws s3 ls` command in case the NAS folder structure is not the same as S3
 for path in "$1"/*; do
   [ -d "${path}" ] || continue # if not a directory, skip
   folder="$(basename "${path}")"
@@ -20,7 +19,14 @@ for path in "$1"/*; do
     echo -e "🚫  skipping \033[100m${folder}\033[0m"
   else
     echo -e "nesting \033[100m${folder}\033[0m ..."
-    aws s3 mv s3://stage-hale-archives-caltech-edu/"${parent_folder}/${folder}" s3://stage-hale-archives-caltech-edu/"${parent_folder}/${folder}/${folder}" --recursive --exclude '*.DS_Store*' --grants full=emailaddress=tkeswick@caltech.edu
+    # exclude destination path or aws will find new items and nest infinitely
+    aws s3 mv \
+      s3://stage-hale-archives-caltech-edu/"${parent_folder}/${folder}" \
+      s3://stage-hale-archives-caltech-edu/"${parent_folder}/${folder}/${folder}" \
+      --recursive \
+      --exclude '*.DS_Store*' \
+      --exclude "*/${folder}/${folder}/*" \
+      --grants full=emailaddress=tkeswick@caltech.edu
     echo "🤖"
   fi
 done
