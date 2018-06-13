@@ -7,10 +7,12 @@ if [ $# == 0 ]; then
   exit 1
 fi
 
-for path in "$1"/*; do
+for path in "${1}"/*; do
   [ -d "${path}" ] || continue # if not a directory, skip
-  dirname="$(basename "${path}")"
-  echo -e "\n$dirname\n"
-  time drush ibbp --user=1 --type=directory --output_set_id --parent=caltech:hale --scan_target="$1"
-  echo -e "\n$dirname 🤖\n"
+  folder="$(basename "${path}")"
+  # make sure $folder is a nested set
+  if [[ $folder = *"__SET" ]]; then
+    time drush ibbp --user=1 --type=directory --output_set_id --parent=caltech:hale --scan_target="${1}/${folder}"
+    echo -e "\n${folder} 🤖\n"
+  fi
 done
