@@ -11,13 +11,13 @@ for path in "$1"/*; do
   [ -d "${path}" ] || continue # if not a directory, skip
   folder="$(basename "${path}")"
   parent="$(dirname "${path}")"
-  if [ -d "${parent}/${folder}/${folder}" ]; then
+  if [[ $folder = *"_SET" ]]; then
     echo -e "🚫  skipping \033[100m${folder}\033[0m"
   else
     echo -e "nesting \033[100m${folder}\033[0m ..."
     mv -v "${parent}/${folder}" "${parent}/${folder}_tmp"
-    mkdir -p "${parent}/${folder}"
-    mv -v "${parent}/${folder}_tmp" "${parent}/${folder}/${folder}"
+    mkdir -p "${parent}/${folder}_SET"
+    mv -v "${parent}/${folder}_tmp" "${parent}/${folder}_SET/${folder}"
     echo "🤖"
   fi
 done

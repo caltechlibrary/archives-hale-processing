@@ -15,17 +15,16 @@ for path in "$1"/*; do
   folder="$(basename "${path}")"
   parent_path="$(dirname "${path}")"
   parent_folder="$(basename "${parent_path}")"
-  if [ -d "${parent_path}/${folder}/${folder}" ]; then
+  if [[ $folder = *"_SET" ]]; then
     echo -e "🚫  skipping \033[100m${folder}\033[0m"
   else
     echo -e "nesting \033[100m${folder}\033[0m ..."
     # exclude destination path or aws will find new items and nest infinitely
     aws s3 mv \
       s3://stage-hale-archives-caltech-edu/"${parent_folder}/${folder}" \
-      s3://stage-hale-archives-caltech-edu/"${parent_folder}/${folder}/${folder}" \
+      s3://stage-hale-archives-caltech-edu/"${parent_folder}/${folder}_SET/${folder}" \
       --recursive \
       --exclude '*.DS_Store*' \
-      --exclude "*/${folder}/${folder}/*" \
       --grants full=emailaddress=tkeswick@caltech.edu
     echo "🤖"
   fi
