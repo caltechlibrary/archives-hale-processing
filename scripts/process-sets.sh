@@ -13,6 +13,7 @@ do
     echo "...end of set list"
     exit;
   fi
+  echo -e "\n\e[106m start set ${set_number} \e[0m\n"
   time drush ibi --user=1 --ingest_set="$set_number"
   # move to the next line for the next iteration
   (( line=line+1 ))

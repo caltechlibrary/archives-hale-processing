@@ -19,6 +19,9 @@ else {
 
 // find all the OBJ.tiff files
 $tiffs = glob($dir . '/*/*/OBJ.tiff');
+$count = count($tiffs);
+$counter = 0;
+echo "pages to process: $count\n";
 foreach ($tiffs as $fullpath) {
   $pagetime_start = microtime(true);
   // each part of the path becomes an array item
@@ -109,4 +112,6 @@ foreach ($tiffs as $fullpath) {
 
   $pagetime = (microtime(true) - $pagetime_start);
   echo "\npage processing time: {$pagetime}\n\n";
+  $counter++;
+  echo "\e[42m " . round((($counter / $count) * 100), 2) . "% complete \e[0m\n";
 }
