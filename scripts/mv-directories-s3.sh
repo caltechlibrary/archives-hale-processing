@@ -19,7 +19,6 @@ for path in "$1"/*; do
     echo -e "🚫  skipping \033[100m${folder}\033[0m"
   else
     echo -e "nesting \033[100m${folder}\033[0m ..."
-    # exclude destination path or aws will find new items and nest infinitely
     aws s3 mv \
       s3://stage-hale-archives-caltech-edu/"${parent_folder}/${folder}" \
       s3://stage-hale-archives-caltech-edu/"${parent_folder}/${folder}__SET/${folder}" \
