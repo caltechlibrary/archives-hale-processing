@@ -113,5 +113,5 @@ foreach ($tiffs as $fullpath) {
   $pagetime = (microtime(true) - $pagetime_start);
   echo "\npage processing time: {$pagetime}\n\n";
   $counter++;
-  echo "\e[42m $counter page of $count processed; " . round((($counter / $count) * 100), 2) . "% complete; " . ($count - $counter) . " pages remaining \e[0m\n";
+  echo "\e[42m $counter of $count pages done \e[0m \e[42m " . round((($counter / $count) * 100), 2) . "% complete \e[0m \e[42m " . ($count - $counter) . " pages left \e[0m \e[42m ≈ " . gmdate('G\hi\m', ($pagetime * ($count - $counter))) . " remaining \e[0m\n";
 }
