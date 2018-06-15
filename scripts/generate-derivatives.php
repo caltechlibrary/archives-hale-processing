@@ -18,6 +18,7 @@ else {
 }
 
 // find all the OBJ.tiff files
+echo "finding all the OBJ.tiff files (may take a while)...\n";
 $tiffs = glob($dir . '/*/*/OBJ.tiff');
 $count = count($tiffs);
 $counter = 0;
