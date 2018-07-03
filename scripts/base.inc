@@ -70,6 +70,8 @@ if (($source_handle = fopen($source_csv, "r")) !== FALSE) {
       //
       // note: some names are duplicated, so a unique string is appended to the
       // directory name to keep each folder separate
+      // @TODO create another level of nesting to separate each folder into sets
+      // for ingesting; see `mv-directories-nas.sh`
       $directory_name = preg_replace('/[^A-Za-z0-9_\-]/', '_', $data_name) . '_' . substr(str_shuffle(uniqid()), 0, 5);
       $directory_path = $destination_path . '/' . $directory_name;
       if (!file_exists($directory_path)) {
@@ -256,9 +258,9 @@ if (($source_handle = fopen($source_csv, "r")) !== FALSE) {
       // create concatenated OCR file
       exec("cat {$ocr_paths_string} > {$directory_path}/OCR.txt");
       // remove individual PDF files
-      foreach ($pdf_path_array as $pdf_path) {
-        unlink($pdf_path);
-      }
+      // foreach ($pdf_path_array as $pdf_path) {
+      //   unlink($pdf_path);
+      // }
 
       $foldertime = (microtime(true) - $foldertime_start);
       echo "folder time: {$foldertime}\n\n";

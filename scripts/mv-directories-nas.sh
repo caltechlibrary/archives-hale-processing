@@ -1,9 +1,15 @@
 #!/bin/bash
 
+# run on cls-image
+
+# argument needs to be like `/path/to/books/parent`
+# where full path is like `/path/to/books/parent/book/0001/OBJ.tiff`
+# result will be like `/path/to/books/parent/book__SET/book/0001/OBJ.tiff`
+
 # display message when no arguments are given
 if [ $# == 0 ]; then
   printf "\n\e[1;91m😵  Error.\e[0m Supply the path to the parent directory of the books.\n"
-  printf "Example: mv-directories-nas.sh /mnt/s3/boxes-001-012\n\n"
+  printf "Example: mv-directories-nas.sh /mnt/nas/boxes-001-012\n\n"
   exit 1
 fi
 

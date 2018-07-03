@@ -7,7 +7,10 @@
 // * Creates a JPG file.
 // * Creates a TN file.
 // * Creates a page-level PDF file.
-// * Moves TIFF files.
+// * Deletes TIFF files.
+
+// Run like `php /path/to/generate-derivatives.php /path/to/books/parent`
+// where book structure is like `/path/to/books/parent/book/0001/OBJ.tiff`
 
 // check for and supply directory argument
 if (isset($argv[1])) {
@@ -33,7 +36,7 @@ foreach ($tiffs as $fullpath) {
   $page_dir = implode('/', $obj_path_array);
   // keep the last element so the page number is then $page_num_array[0]
   $page_num_array = array_slice($obj_path_array, -1);
-  $page_num = $page_num_array[0];
+  $page_num_zeros = $page_num_array[0];
   // remove the last item (the page number) from array
   array_pop($obj_path_array);
   // set up the full file path for the parent and its MODS file
@@ -46,6 +49,7 @@ foreach ($tiffs as $fullpath) {
   $time_start = microtime(true);
   $parent_mods_file = $parent_dir . '/MODS.xml';
   $folder_mods_xml = simplexml_load_file($parent_mods_file);
+  $page_num = ltrim($page_num_zeros, '0');
   $page_title = $folder_mods_xml->titleInfo->title . ', page ' . $page_num;
   echo "\n$page_title\n\n";
   // recreate the MODS file every time because we are using append
@@ -102,14 +106,16 @@ foreach ($tiffs as $fullpath) {
   $time = (microtime(true) - $time_start);
   echo "🤖  created PDF... $time\n";
 
-  // move TIFF
-  $tiff_page_dir = $dir . '/TIFFs/' . $parent_folder . '/' . $page_num;
-  if (!mkdir($tiff_page_dir, 0777, TRUE)) {
-    echo "🚫  mkdir $tiff_page_dir failed\n";
-  }
-  if (!rename($page_dir . '/OBJ.tiff', $tiff_page_dir . '/OBJ.tiff')) {
-    echo "🚫  moving " . $parent_folder . '/' . $page_num . "/OBJ.tiff failed\n";
-  }
+  // delete TIFF
+  unlink($page_dir . '/OBJ.tiff');
+  // // move TIFF
+  // $tiff_page_dir = $dir . '/TIFFs/' . $parent_folder . '/' . $page_num;
+  // if (!mkdir($tiff_page_dir, 0777, TRUE)) {
+  //   echo "🚫  mkdir $tiff_page_dir failed\n";
+  // }
+  // if (!rename($page_dir . '/OBJ.tiff', $tiff_page_dir . '/OBJ.tiff')) {
+  //   echo "🚫  moving " . $parent_folder . '/' . $page_num . "/OBJ.tiff failed\n";
+  // }
 
   $pagetime = (microtime(true) - $pagetime_start);
   echo "\npage processing time: {$pagetime}\n\n";
