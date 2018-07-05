@@ -91,7 +91,7 @@ foreach ($dirItem as $fileInfo) {
             echo "✅  wrote $title_new to $filename\n";
         }
         else {
-            echo "↩️  skipping book MODS file: $filename\n";
+            echo "↩️  skipping file: $filename\n";
         }
 
     }
