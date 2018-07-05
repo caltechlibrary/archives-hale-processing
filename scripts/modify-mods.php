@@ -14,7 +14,7 @@ if (isset($argv[1]) && isset($argv[2])) {
   $path_destination = $argv[2];
 }
 else {
-  exit("\n\e[1;91mSTOP!\e[0m The source and destination directories must be supplied.\nExample: php /path/to/modify-mods.php /path/to/source/files /path/to/destination/files\n");
+  exit("\n🚫  \e[1;91mSTOP!\e[0m The source and destination directories must be supplied.\nExample: php /path/to/modify-mods.php /path/to/source/files /path/to/destination/files\n\n");
 }
 
 // http://php.net/manual/en/class.directoryiterator.php
@@ -26,7 +26,7 @@ foreach ($dirItem as $fileInfo) {
         // load MODS file
         $mods = simplexml_load_file($path_source . '/' . $filename);
 
-        // note: XML file has 'mods' namespace
+        // note: page MODS files have 'mods' namespace
         // http://us1.php.net/manual/en/simplexmlelement.children.php
         $title = $mods->children('mods', TRUE)->titleInfo->title;
 
@@ -41,7 +41,7 @@ foreach ($dirItem as $fileInfo) {
             $mods->children('mods', TRUE)->titleInfo->title = $title_new;
             // http://us1.php.net/manual/en/simplexmlelement.asxml.php
             $mods->asXML($path_destination . '/' . $filename);
-            echo "✅  wrote $title_new to {$path_destination}/{$filename}\n";
+            echo "✅  wrote $title_new to $filename\n";
         }
         elseif (strpos($title, ', page 0') === 0) {
             // when the MODS title starts with the page number string, warn us
@@ -64,10 +64,10 @@ foreach ($dirItem as $fileInfo) {
             $mods->children('mods', TRUE)->titleInfo->title = $title_new;
             // http://us1.php.net/manual/en/simplexmlelement.asxml.php
             $mods->asXML($path_destination . '/' . $filename);
-            echo "✅  wrote $title_new to {$path_destination}/{$filename}\n";
+            echo "✅  wrote $title_new to $filename\n";
         }
         else {
-            echo "↩️  skipping: $title\n";
+            echo "↩️  skipping book MODS file: $filename\n";
         }
 
     }
