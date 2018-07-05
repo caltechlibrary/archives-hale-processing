@@ -10,14 +10,25 @@
 //   /path/to/source/files directory
 // - the namespace of each page is 'hale'
 // - each page sequence number has four digits, like '0123'
+// - the source and destination directories exist
 //
 // run like:
 // php /path/to/modify-mods.php /path/to/source/files /path/to/destination/files
 
 // check for directory arguments and set variables
 if (isset($argv[1]) && isset($argv[2])) {
-  $path_source = $argv[1];
-  $path_destination = $argv[2];
+  if (file_exists($argv[1])) {
+    $path_source = rtrim($argv[1], '/');
+  }
+  else {
+    exit("\n🚫  \e[1;91mSTOP!\e[0m The supplied source directory does not exist.\n\n");
+  }
+  if (file_exists($argv[2])) {
+    $path_destination = rtrim($argv[2], '/');
+  }
+  else {
+    exit("\n🚫  \e[1;91mSTOP!\e[0m The supplied destination directory does not exist.\n\n");
+  }
 }
 else {
   exit("\n🚫  \e[1;91mSTOP!\e[0m The source and destination directories must be supplied.\nExample: php /path/to/modify-mods.php /path/to/source/files /path/to/destination/files\n\n");
