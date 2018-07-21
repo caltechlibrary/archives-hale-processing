@@ -60,8 +60,8 @@ foreach ($dirItem as $fileInfo) {
         if (strpos($title, ', page 0') > 0) {
             // when the page number string has leading zeros we strip them out
             // example title: `J. L. Kandel, page 0005`
-            // get the last 4 characters of the title and trim 0s
-            $page_number = trim(substr($title, -4), '0');
+            // get the last 4 characters of the title and trim leading 0s
+            $page_number = ltrim(substr($title, -4), '0');
             // get the title without the last 4 characters and append the page number
             $title_new = substr($title, 0, -4) . $page_number;
             // set new title in $mods object
