@@ -41,7 +41,7 @@ $subseries_names = [
   'D' => 'General',
 ];
 
-if (empty($csv_file) || empty($reel_source_path) || empty($bag_destination_path) || empty($islandora_url) || empty($collection_id) || empty($source_organization) || empty($contact_name) || empty($contact_email)) {
+if (empty("$csv_file") || empty("$reel_source_path") || empty("$bag_destination_path") || empty("$islandora_url") || empty("$collection_id") || empty("$source_organization") || empty("$contact_name") || empty("$contact_email")) {
   exit("\n🚫 exited: parameters not set in bagit.php file\n");
 }
 
@@ -52,7 +52,7 @@ if (!is_dir("{$bag_destination_path}/logs/{$collection_id}")) {
 }
 
 // open the csv file and save the data to an array
-if (($handle = fopen($csv_file, "r")) !== FALSE) {
+if (($handle = fopen("$csv_file", "r")) !== FALSE) {
   while (($record = fgetcsv($handle)) !== FALSE) {
     $data[] = $record;
   }
@@ -113,7 +113,7 @@ foreach ($data as $folder_data) {
   $reel_number = $folder_data[12];
   $reel_number_padded = str_pad($reel_number, 3, '0', STR_PAD_LEFT);
   // echo "REEL NUMBER: $reel_number \n";
-  $reel_directory = $reel_source_path . "/Hale Reel#" . $reel_number_padded;
+  $reel_directory = "{$reel_source_path}/Hale Reel#{$reel_number_padded}";
   // echo "REEL DIRECTORY: $reel_directory \n";
 
   $first_file_number = $folder_data[17];
