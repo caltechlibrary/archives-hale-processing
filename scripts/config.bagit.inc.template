@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * Path configuration for directories and files.
+ *
+ * Use absolute paths in these variables.
+ */
+
+$csv_file = ''; // /path/to/csv file
+$reel_source_path = ''; // /path/to/directory containing 'Hale Reel#nnn' directories
+$bag_destination_path = ''; // /path/to/destination where $collection_id directory will be created
+$islandora_url = ''; // no trailing slash
+$collection_id = '';
+$source_organization = '';
+$contact_name = '';
+$contact_email = '';

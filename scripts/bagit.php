@@ -8,14 +8,16 @@
  * numbers for the files within the bags... (in progress)
  */
 
-$csv_file = ''; // /path/to/csv file
-$reel_source_path = ''; // /path/to/directory containing 'Hale Reel#nnn' directories
-$bag_destination_path = ''; // /path/to/destination where $collection_id directory will be created
-$islandora_url = 'https://hale.archives.caltech.edu'; // no trailing slash
-$collection_id = 'HaleGE';
-$source_organization = 'Caltech Archives';
-$contact_name = 'Peter Collopy';
-$contact_email = 'pcollopy@caltech.edu';
+$config_file = __DIR__ . "/config.bagit.inc";
+if (file_exists($config_file)) {
+  include $config_file;
+}
+else {
+  exit("\n🚫 exited: config.bagit.inc file does not exist\n");
+}
+if (empty("$csv_file") || empty("$reel_source_path") || empty("$bag_destination_path") || empty("$islandora_url") || empty("$collection_id") || empty("$source_organization") || empty("$contact_name") || empty("$contact_email")) {
+  exit("\n🚫 exited: parameters not set in config.bagit.inc file\n");
+}
 $external_id = ''; // set below
 $external_description = ''; // set below
 $bag_size = ''; // set below
@@ -40,10 +42,6 @@ $subseries_names = [
   'C' => 'National Research Council',
   'D' => 'General',
 ];
-
-if (empty("$csv_file") || empty("$reel_source_path") || empty("$bag_destination_path") || empty("$islandora_url") || empty("$collection_id") || empty("$source_organization") || empty("$contact_name") || empty("$contact_email")) {
-  exit("\n🚫 exited: parameters not set in bagit.php file\n");
-}
 
 if (!is_dir("{$bag_destination_path}/logs/{$collection_id}")) {
   if (!mkdir("{$bag_destination_path}/logs/{$collection_id}", 0777, TRUE)) {

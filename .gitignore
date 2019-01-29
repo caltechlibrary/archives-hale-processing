@@ -7,4 +7,5 @@ data
 exclude
 unclean
 
+scripts/config.bagit.inc
 scripts/config.inc
