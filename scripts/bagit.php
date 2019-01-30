@@ -65,6 +65,10 @@ array_shift($data);
 // loop over each record that represents a line in the spreadsheet
 foreach ($data as $folder_data) {
 
+  if (empty($folder_data)) {
+    continue;
+  }
+
   // pad the series number with zeros totaling 2 digits
   $series_number_padded = str_pad($folder_data[0], 2, '0', STR_PAD_LEFT);
   // pad the subseries character with zeros totaling 2 characters
