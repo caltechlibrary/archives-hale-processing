@@ -65,6 +65,9 @@ array_shift($data);
 // loop over each record that represents a line in the spreadsheet
 foreach ($data as $folder_data) {
 
+  // debug
+  echo "🤖 start folder foreach\n";
+
   if (empty($folder_data)) {
     continue;
   }
@@ -214,8 +217,8 @@ foreach ($data as $folder_data) {
   // line wrapping in bagit-info.txt
   // see https://github.com/LibraryOfCongress/bagit-python/issues/126
   $external_description = "External-Description: $external_description";
-  $external_description = wordwrap($external_description, 79, "\r\n ");
-  $external_description = str_replace("External-Description: ", '', $external_description);
+//  $external_description = wordwrap($external_description, 79, "\r\n ");
+//  $external_description = str_replace("External-Description: ", '', $external_description);
 
   $external_id = $folder_directory_string;
 
@@ -243,7 +246,13 @@ foreach ($data as $folder_data) {
   echo "🤖 bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit-validate.log' --validate '{$folder_directory_realpath}'\n";
   exec("bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit-validate.log' --validate '{$folder_directory_realpath}'");
 
+  // debug
+  echo "🤖 end folder foreach\n";
+
 } // end folder loop
+
+// debug
+echo "🤖 begin after foreach\n";
 
 $external_description = "Manuscript collection of astrophysicist George Ellery Hale’s personal and professional papers, digitized from microfilm into unprocessed grayscale TIFF files.";
 // NOTE: bagit-python does not seem to respect line breaks passed in the
@@ -251,8 +260,8 @@ $external_description = "Manuscript collection of astrophysicist George Ellery H
 // line wrapping in bagit-info.txt
 // see https://github.com/LibraryOfCongress/bagit-python/issues/126
 $external_description = "External-Description: $external_description";
-$external_description = wordwrap($external_description, 79, "\r\n ");
-$external_description = str_replace("External-Description: ", '', $external_description);
+//$external_description = wordwrap($external_description, 79, "\r\n ");
+//$external_description = str_replace("External-Description: ", '', $external_description);
 
 // use a single process unless set differently in config file
 if (empty($processes)) {
