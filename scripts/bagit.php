@@ -95,6 +95,7 @@ foreach ($data as $folder_data) {
     $subseries_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$subseries_chars_padded}_{$subseries_name_alnum}";
   }
   $folder_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$subseries_chars_padded}_{$box_number_padded}_{$folder_number_padded}_{$folder_name_alnum}";
+  // debug
   echo "\n{$folder_directory_string}\n";
 
   // set up full path conditionally with subseries
@@ -129,7 +130,7 @@ foreach ($data as $folder_data) {
     $source_file_number_padded = str_pad($first_file_number + $file_counter, 5, '0', STR_PAD_LEFT);
     $source_file_name = 'Reel #' . $reel_number_padded . '_' . $source_file_number_padded . '.tif';
     // echo "FILE NUMBER: $source_file_number_padded \n";
-    echo "FILE NAME: $source_file_name \n";
+    // echo "FILE NAME: $source_file_name \n";
 
     $source_file_path = "{$reel_directory}/frames/{$source_file_name}";
     if (file_exists($source_file_path)) {
@@ -149,8 +150,10 @@ foreach ($data as $folder_data) {
           exit("🚫 failed to create $folder_directory_path directory structure...\n");
         }
       }
+      // debug
+      echo "{$source_file_name} ➜ {$page_filename}\n";
       if (!copy($source_file_path, $page_file_path)) {
-        echo "failed to copy {$source_file_path}...\n";
+        echo "🚫 failed to copy {$source_file_path}...\n";
       }
 
       $filesize = filesize($page_file_path);
@@ -226,8 +229,14 @@ foreach ($data as $folder_data) {
 
   // bagit
   $folder_directory_realpath = realpath($folder_directory_path);
+  // debug
+  echo "🤖 bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'\n";
   exec("bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'");
+  // debug
+  echo "🤖 bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit-validate-fast.log' --validate --fast '{$folder_directory_realpath}'\n";
   exec("bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit-validate-fast.log' --validate --fast '{$folder_directory_realpath}'");
+  // debug
+  echo "🤖 bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit-validate.log' --validate '{$folder_directory_realpath}'\n";
   exec("bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit-validate.log' --validate '{$folder_directory_realpath}'");
 
 } // end folder loop
@@ -248,8 +257,14 @@ if (empty($processes)) {
 
 // bagit all
 $collection_directory_realpath = realpath($collection_directory_path);
+// debug
+echo "🤖 bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' '{$collection_directory_realpath}'\n";
 exec("bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' '{$collection_directory_realpath}'");
+// debug
+echo "🤖 bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate-fast.log' --validate --fast '{$collection_directory_realpath}'\n";
 exec("bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate-fast.log' --validate --fast '{$collection_directory_realpath}'");
+// debug
+echo "🤖 bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate.log --validate' '{$collection_directory_realpath}'\n";
 exec("bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate.log --validate' '{$collection_directory_realpath}'");
 
 // adapted from http://php.net/manual/en/function.filesize.php#116205
