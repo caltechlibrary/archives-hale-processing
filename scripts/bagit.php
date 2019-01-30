@@ -204,7 +204,7 @@ foreach ($data as $folder_data) {
     $external_description .= "; Subseries {$folder_data[1]}: {$subseries_names[$folder_data[1]]}";
   }
 
-  $external_description .= ", George Ellery Hale Papers, Caltech Archives. Digitized from microfilm into unprocessed grayscale TIFF files.";
+  $external_description .= ", George Ellery Hale Papers, Caltech Archives. Digitized from microfilm into unprocessed grayscale TIFF files with accompanying metadata in MODS format.";
   // NOTE: bagit-python does not seem to respect line breaks passed in the
   // command line options, so we cannot strictly follow the recommendation for
   // line wrapping in bagit-info.txt
