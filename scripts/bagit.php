@@ -254,7 +254,7 @@ exec("bagit.py --processes '{$processes}' --log '{$bag_destination_path}/logs/{$
 
 // adapted from http://php.net/manual/en/function.filesize.php#116205
 function human_filesize($bytes, $decimals = 2) {
-  $prefixes = 'KMGTP';
+  $prefixes = 'BKMGTP';
   $factor = floor((strlen($bytes) - 1) / 3);
   if ($bytes > 0 && $factor > 0) {
     $prefix = substr($prefixes, $factor, 1);
