@@ -14,3 +14,5 @@ $collection_id = '';
 $source_organization = '';
 $contact_name = '';
 $contact_email = '';
+
+$processes = ''; // for use when calculating checksums in bagit
