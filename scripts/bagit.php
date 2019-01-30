@@ -216,7 +216,7 @@ foreach ($data as $folder_data) {
   // command line options, so we cannot strictly follow the recommendation for
   // line wrapping in bagit-info.txt
   // see https://github.com/LibraryOfCongress/bagit-python/issues/126
-  $external_description = "External-Description: $external_description";
+//  $external_description = "External-Description: $external_description";
 //  $external_description = wordwrap($external_description, 79, "\r\n ");
 //  $external_description = str_replace("External-Description: ", '', $external_description);
 
@@ -259,7 +259,7 @@ $external_description = "Manuscript collection of astrophysicist George Ellery H
 // command line options, so we cannot strictly follow the recommendation for
 // line wrapping in bagit-info.txt
 // see https://github.com/LibraryOfCongress/bagit-python/issues/126
-$external_description = "External-Description: $external_description";
+//$external_description = "External-Description: $external_description";
 //$external_description = wordwrap($external_description, 79, "\r\n ");
 //$external_description = str_replace("External-Description: ", '', $external_description);
 
