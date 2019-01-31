@@ -263,6 +263,8 @@ $external_description = "Manuscript collection of astrophysicist George Ellery H
 //$external_description = wordwrap($external_description, 79, "\r\n ");
 //$external_description = str_replace("External-Description: ", '', $external_description);
 
+$external_id = $collection_id;
+
 // use a single process unless set differently in config file
 if (empty($processes)) {
   $processes = '1';
