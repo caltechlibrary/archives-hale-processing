@@ -68,7 +68,7 @@ foreach ($data as $folder_data) {
   // debug
   echo "🤖 start folder foreach\n";
 
-  if (empty($folder_data)) {
+  if (empty($folder_data[0])) {
     continue;
   }
 
