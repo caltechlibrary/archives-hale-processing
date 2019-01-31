@@ -279,8 +279,8 @@ exec("python3 -m bagit --processes '{$processes}' --log '{$bag_destination_path}
 echo "🤖 python3 -m bagit --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate-fast.log' --validate --fast '{$collection_directory_realpath}'\n";
 exec("python3 -m bagit --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate-fast.log' --validate --fast '{$collection_directory_realpath}'");
 // debug
-echo "🤖 python3 -m bagit --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate.log --validate' '{$collection_directory_realpath}'\n";
-exec("python3 -m bagit --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate.log --validate' '{$collection_directory_realpath}'");
+echo "🤖 python3 -m bagit --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate.log --validate '{$collection_directory_realpath}'\n";
+exec("python3 -m bagit --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate.log --validate '{$collection_directory_realpath}'");
 
 // adapted from http://php.net/manual/en/function.filesize.php#116205
 function human_filesize($bytes, $decimals = 2) {
