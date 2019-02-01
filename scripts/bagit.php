@@ -80,7 +80,7 @@ if (($handle = fopen("$csv_file", "r")) !== FALSE) {
 // remove the first row which contains column names
 array_shift($data);
 
-$folder_timer_start = microtime(true);
+$folder_timer_start = microtime(TRUE);
 
 // loop over each record that represents a line in the spreadsheet
 foreach ($data as $folder_data) {
@@ -266,8 +266,8 @@ foreach ($data as $folder_data) {
 
 } // end folder loop
 
-$folder_time = (microtime(true) - $folder_timer_start);
-echo "\n⏱ folder time: {$folder_time}\n";
+$folder_time = (microtime(TRUE) - $folder_timer_start);
+echo "\n⏱  folder time: {$folder_time}\n";
 
 // debug
 echo "\n🗄  begin processing top-level: {$collection_id}\n";
@@ -288,7 +288,7 @@ if (empty($processes)) {
   $processes = '1';
 }
 
-$collection_timer_start = microtime(true);
+$collection_timer_start = microtime(TRUE);
 
 // bagit all
 $collection_directory_realpath = realpath($collection_directory_path);
@@ -302,8 +302,8 @@ exec("python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directo
 //echo "🤖 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'\n";
 //exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'");
 
-$collection_time = (microtime(true) - $collection_timer_start);
-echo "\n⏱ collection time: {$collection_time}\n";
+$collection_time = (microtime(TRUE) - $collection_timer_start);
+echo "\n⏱  collection time: {$collection_time}\n";
 
 // adapted from http://php.net/manual/en/function.filesize.php#116205
 function human_filesize($bytes, $decimals = 2) {
