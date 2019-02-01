@@ -301,7 +301,7 @@ exec("python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directo
 
 // remove any .DS_Store files from the file structure before validation
 $objects = new RecursiveIteratorIterator(
-  new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)
+  new RecursiveDirectoryIterator($collection_directory_realpath, FilesystemIterator::SKIP_DOTS)
 );
 foreach($objects as $object){
   if (basename($object) == '.DS_Store') {
