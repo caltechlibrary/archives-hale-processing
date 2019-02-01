@@ -26,9 +26,11 @@ if (file_exists($config_file)) {
 else {
   exit("\n🚫 exited: config.bagit.inc file does not exist\n");
 }
+
 if (empty("$csv_file") || empty("$reel_source_path") || empty("$bag_destination_path") || empty("$islandora_url") || empty("$collection_id") || empty("$source_organization") || empty("$contact_name") || empty("$contact_email")) {
   exit("\n🚫 exited: parameters not set in config.bagit.inc file\n");
 }
+
 $external_id = ''; // set below
 $external_description = ''; // set below
 $bag_size = ''; // set below
@@ -65,6 +67,7 @@ if (!is_dir("{$bag_destination_path}/{$csv_batch_directory}/logs/{$collection_id
 $logs_directory = "{$bag_destination_path}/{$csv_batch_directory}/logs/{$collection_id}";
 
 // open the csv file and save the data to an array
+// NOTE: no real validation is done of the file contents
 if (($handle = fopen("$csv_file", "r")) !== FALSE) {
   while (($record = fgetcsv($handle)) !== FALSE) {
     $data[] = $record;
@@ -72,16 +75,13 @@ if (($handle = fopen("$csv_file", "r")) !== FALSE) {
   fclose($handle);
 }
 
-// print_r($data);
+//print_r($data);
 
 // remove the first row which contains column names
 array_shift($data);
 
 // loop over each record that represents a line in the spreadsheet
 foreach ($data as $folder_data) {
-
-  // debug
-  echo "🤖 start folder foreach\n";
 
   if (empty($folder_data[0])) {
     continue;
@@ -117,8 +117,9 @@ foreach ($data as $folder_data) {
     $subseries_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$subseries_chars_padded}_{$subseries_name_alnum}";
   }
   $folder_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$subseries_chars_padded}_{$box_number_padded}_{$folder_number_padded}_{$folder_name_alnum}";
+
   // debug
-  echo "\n{$folder_directory_string}\n";
+  echo "\n📂 begin processing {$folder_directory_string}\n";
 
   // set up full path conditionally with subseries
   if (!empty($folder_data[1])) {
@@ -258,14 +259,13 @@ foreach ($data as $folder_data) {
 //  echo "🤖 python3 -m bagit --validate --fast --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate-fast.log' '{$folder_directory_realpath}'\n";
 //  exec("python3 -m bagit --validate --fast --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate-fast.log' '{$folder_directory_realpath}'");
   // debug
-  echo "🤖 end folder foreach\n";
 //  echo "🤖 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate.log' '{$folder_directory_realpath}'\n";
 //  exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate.log' '{$folder_directory_realpath}'");
 
 } // end folder loop
 
 // debug
-echo "🤖 begin after foreach\n";
+echo "\n🗄  begin processing top-level: {$collection_id}\n";
 
 $external_description = "Manuscript collection of astrophysicist George Ellery Hale’s personal and professional papers, digitized from microfilm into unprocessed grayscale TIFF files.";
 // NOTE: bagit-python does not seem to respect line breaks passed in the
