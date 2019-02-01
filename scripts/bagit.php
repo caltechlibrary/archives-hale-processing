@@ -310,18 +310,20 @@ foreach($objects as $object){
 }
 
 // debug
-//echo "🤖 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'\n";
+echo "\n🐞 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'\n";
 exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'", $output, $validate_return_status);
 
 if ($validate_return_status == 0) {
   // move data folder to S3 and send output to log file so script keeps running
 //  exec("aws s3 mv {$collection_directory_realpath}/data s3://archives-bagit-tmp/{$collection_id} --recursive --exclude '*.DS_Store*' > {$logs_directory}/{$collection_id}_bagit-aws-s3-mv.log &");
   // without log file
+  //// debug
+  echo "\n🐞 aws s3 mv {$collection_directory_realpath}/data s3://archives-bagit-tmp/{$collection_id} --recursive --exclude '*.DS_Store*'";
   exec("aws s3 mv {$collection_directory_realpath}/data s3://archives-bagit-tmp/{$collection_id} --recursive --exclude '*.DS_Store*'");
 }
 else {
   // batch did not validate
-  echo "did not validate\n";
+  echo "\n🐞 did not validate \n";
 }
 
 $collection_time = (microtime(TRUE) - $collection_timer_start);
