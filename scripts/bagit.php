@@ -8,6 +8,17 @@
  * numbers for the files within the bags... (in progress)
  */
 
+// get the path to the csv file from the command-line argument
+if (empty($argv[1])) {
+  exit("\n🚫 exited: please supply the path to a CSV file\n➡️  example: php bagit.php /path/to/file.csv\n");
+}
+elseif (!file_exists($argv[1])) {
+  exit("\n🚫 exited: no file exists at supplied path\n➡️  example: php bagit.php /path/to/file.csv\n");
+}
+else {
+  $csv_file = $argv[1];
+}
+
 $config_file = __DIR__ . "/config.bagit.inc";
 if (file_exists($config_file)) {
   include $config_file;
@@ -43,11 +54,15 @@ $subseries_names = [
   'D' => 'General',
 ];
 
-if (!is_dir("{$bag_destination_path}/logs/{$collection_id}")) {
-  if (!mkdir("{$bag_destination_path}/logs/{$collection_id}", 0777, TRUE)) {
-    exit("🚫 exited: failed to create {$bag_destination_path}/logs directory...\n");
+// set up logs directory
+$csv_file_path_parts = pathinfo($csv_file);
+$csv_batch_directory = $csv_file_path_parts['filename'];
+if (!is_dir("{$bag_destination_path}/{$csv_batch_directory}/logs/{$collection_id}")) {
+  if (!mkdir("{$bag_destination_path}/{$csv_batch_directory}/logs/{$collection_id}", 0777, TRUE)) {
+    exit("🚫 exited: failed to create {$bag_destination_path}/{$csv_batch_directory}/logs/{$collection_id} directory...\n");
   }
 }
+$logs_directory = "{$bag_destination_path}/{$csv_batch_directory}/logs/{$collection_id}";
 
 // open the csv file and save the data to an array
 if (($handle = fopen("$csv_file", "r")) !== FALSE) {
@@ -96,7 +111,7 @@ foreach ($data as $folder_data) {
 
   // set up directory strings
   $collection_directory_string = $collection_id;
-  $collection_directory_path = "{$bag_destination_path}/{$collection_directory_string}";
+  $collection_directory_path = "{$bag_destination_path}/{$csv_batch_directory}/{$collection_directory_string}";
   $series_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$series_name_alnum}";
   if (!empty($folder_data[1])) {
     $subseries_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$subseries_chars_padded}_{$subseries_name_alnum}";
@@ -237,17 +252,15 @@ foreach ($data as $folder_data) {
   // bagit
   $folder_directory_realpath = realpath($folder_directory_path);
   // debug
-  echo "🤖 python3 -m bagit --sha512 --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'\n";
-  exec("python3 -m bagit --sha512 --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'");
+  echo "\n🐞 python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'\n";
+  exec("python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'");
   // debug
-  echo "🤖 python3 -m bagit --validate --fast --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit-validate-fast.log' '{$folder_directory_realpath}'\n";
-  exec("python3 -m bagit --validate --fast --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit-validate-fast.log' '{$folder_directory_realpath}'");
-  // debug
-  echo "🤖 python3 -m bagit --validate --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit-validate.log' '{$folder_directory_realpath}'\n";
-  exec("python3 -m bagit --validate --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$folder_files_prefix}_bagit-validate.log' '{$folder_directory_realpath}'");
-
+//  echo "🤖 python3 -m bagit --validate --fast --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate-fast.log' '{$folder_directory_realpath}'\n";
+//  exec("python3 -m bagit --validate --fast --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate-fast.log' '{$folder_directory_realpath}'");
   // debug
   echo "🤖 end folder foreach\n";
+//  echo "🤖 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate.log' '{$folder_directory_realpath}'\n";
+//  exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate.log' '{$folder_directory_realpath}'");
 
 } // end folder loop
 
@@ -273,14 +286,14 @@ if (empty($processes)) {
 // bagit all
 $collection_directory_realpath = realpath($collection_directory_path);
 // debug
-echo "🤖 python3 -m bagit --sha512 --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' '{$collection_directory_realpath}'\n";
-exec("python3 -m bagit --sha512 --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' '{$collection_directory_realpath}'");
+echo "\n🐞 python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' '{$collection_directory_realpath}'\n";
+exec("python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' '{$collection_directory_realpath}'");
 // debug
-echo "🤖 python3 -m bagit --validate --fast --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate-fast.log' '{$collection_directory_realpath}'\n";
-exec("python3 -m bagit --validate --fast --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate-fast.log' '{$collection_directory_realpath}'");
+//echo "🤖 python3 -m bagit --validate --fast --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate-fast.log' '{$collection_directory_realpath}'\n";
+//exec("python3 -m bagit --validate --fast --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate-fast.log' '{$collection_directory_realpath}'");
 // debug
-echo "🤖 python3 -m bagit --validate --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'\n";
-exec("python3 -m bagit --validate --processes '{$processes}' --log '{$bag_destination_path}/logs/{$collection_id}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'");
+//echo "🤖 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'\n";
+//exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'");
 
 // adapted from http://php.net/manual/en/function.filesize.php#116205
 function human_filesize($bytes, $decimals = 2) {
