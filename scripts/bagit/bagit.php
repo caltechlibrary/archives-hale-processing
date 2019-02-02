@@ -303,7 +303,7 @@ exec("python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directo
 $objects = new RecursiveIteratorIterator(
   new RecursiveDirectoryIterator($collection_directory_realpath, FilesystemIterator::SKIP_DOTS)
 );
-foreach($objects as $object){
+foreach($objects as $object) {
   if (basename($object) == '.DS_Store') {
     unlink($object);
   }
@@ -315,6 +315,11 @@ exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_direc
 
 if ($validate_return_status == 0) {
   // move data folder to S3 and send output to log file
+  // NOTE: consider how best to divvy up resources; `aws s3 mv` takes place in
+  // the background for an unknown length of time after this script finishes;
+  // if many instances of this script are run in sequence, server resources will
+  // likely become exhausted at some point when uploads to aws are queued up for
+  // every processor
   //// debug
   echo "\n🐞 aws s3 mv {$collection_directory_realpath}/data s3://archives-bagit-tmp/{$collection_id}/data --recursive --no-progress --exclude '*.DS_Store*' > {$logs_directory}/{$collection_id}_bagit-aws-s3-mv.log &\n";
   exec("aws s3 mv {$collection_directory_realpath}/data s3://archives-bagit-tmp/{$collection_id}/data --recursive --no-progress --exclude '*.DS_Store*' > {$logs_directory}/{$collection_id}_bagit-aws-s3-mv.log &");
@@ -342,3 +347,32 @@ function human_filesize($bytes, $decimals = 2) {
   }
   return number_format($bytes / pow(1000, $factor), $decimals) . " {$prefix}B";
 }
+
+// this should give the same output as `du -bs $path`
+function GetDirectorySize($path){
+  $bytestotal = 0;
+  $path = realpath($path);
+  if($path!==false && $path!='' && file_exists($path)){
+    foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)) as $object){
+      $bytestotal += $object->getSize();
+    }
+  }
+  return $bytestotal;
+}
+
+//echo GetDirectorySize($path) . "\n";
+
+// this should give the same output as `find $path -type f | wc -l`
+//$objects = new RecursiveIteratorIterator(
+//  new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)
+//);
+//foreach($objects as $name => $object){
+//  // beware the cursed .DS_Store file...
+//  if (basename($object) == '.DS_Store') {
+//    unlink($object);
+//  }
+//}
+
+//$count=iterator_count($objects);
+
+//echo number_format($count) . "\n"; //680,642 wooohaah!
