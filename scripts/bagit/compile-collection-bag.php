@@ -28,8 +28,8 @@ if (empty("$bag_destination_path") || empty("$collection_id")) {
 }
 
 $payload_oxum = array();
-$bytes = '0';
-$files = '0';
+$bytes = 0;
+$files = 0;
 $manifest = '';
 
 // loop through directories
