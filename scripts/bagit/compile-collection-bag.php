@@ -13,10 +13,11 @@
 // it into a new manifest-sha512.txt file that will be used for the whole
 // collection.
 //
-// We also need to save a bagit.txt file for the whole collection.
+// We also need to save a bagit.txt file for the whole collection and make sure
+// there is no tagmanifest-sha512.txt file at the top level.
 
 // get configuration
-$config_file = __DIR__ . "/../config.bagit.inc";
+$config_file = __DIR__ . "/config.bagit.inc";
 if (file_exists($config_file)) {
   include $config_file;
 }
@@ -46,7 +47,7 @@ foreach($objects as $object) {
     $baginfo_source = file($pathname);
     foreach ($baginfo_source as $line) {
       if (strpos($line, 'Payload-Oxum: ') !== FALSE) {
-        $payload_oxum = explode('.', substr_replace('Payload-Oxum: ', '', 0));
+        $payload_oxum = explode('.', str_replace('Payload-Oxum: ', '', $line));
         $bytes = (int) $payload_oxum[0] + $bytes;
         $files = (int) $payload_oxum[1] + $files;
       }
@@ -71,6 +72,10 @@ $baginfo = array(
   'Source-Organization: Caltech Archives',
   '',
 );
-file_put_contents("{$bag_destination_path}/bag-info.txt", implode("\n", $baginfo));
+if (file_put_contents("{$bag_destination_path}/bag-info.txt", implode("\n", $baginfo)) !== FALSE) {
+  echo "\n✅ successfully created {$bag_destination_path}/bag-info.txt file\n";
+}
 
-file_put_contents("{$bag_destination_path}/manifest-sha512.txt", $manifest);
+if (file_put_contents("{$bag_destination_path}/manifest-sha512.txt", $manifest) !== FALSE) {
+  echo "\n✅ successfully created {$bag_destination_path}/manifest-sha512.txt file\n";
+}
