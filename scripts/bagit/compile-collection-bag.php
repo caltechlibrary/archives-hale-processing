@@ -47,8 +47,8 @@ foreach($objects as $object) {
     foreach ($baginfo_source as $line) {
       if (strpos($line, 'Payload-Oxum: ') !== FALSE) {
         $payload_oxum = explode('.', substr_replace('Payload-Oxum: ', '', 0));
-        $bytes = $payload_oxum[0] + $bytes;
-        $files = $payload_oxum[1] + $files;
+        $bytes = (int) $payload_oxum[0] + $bytes;
+        $files = (int) $payload_oxum[1] + $files;
       }
     }
   }
