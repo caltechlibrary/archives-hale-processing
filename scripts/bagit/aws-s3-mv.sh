@@ -12,25 +12,29 @@ fi
 
 # @TODO we could capture more command line input to abstract paths
 
-for file in "$1"/validated/HaleGE_*; do
+while [[ -f "$1"/validated/HaleGE_* ]]; do
 
-    echo ${file}
+    for file in "$1"/validated/HaleGE_*; do
 
-    # move structure to S3
+        echo ${file}
 
-    #
-    filename=${file##*/}
-    echo ${filename}
-    # the structure to move is located at /path/to/directory/${filename}/HaleGE/data
-    #
-    # @TODO we could technically parse the beginning of the ${filename} for the
-    # 'HaleGE' part, but that seems unnecessary right now
-    directory_to_move="${1}/${filename}/HaleGE/data"
+        # move structure to S3
 
-    aws s3 mv "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude '*.DS_Store*'
+        # get the filename only, without the full path
+        filename=${file##*/}
 
-    if [[ $? -eq 0 ]]; then
-        rm ${file}
-    fi
+        # the structure to move is located at /path/to/directory/${filename}/HaleGE/data
+        #
+        # @TODO we could technically parse the beginning of the ${filename} for the
+        # 'HaleGE' part, but that seems unnecessary right now
+        directory_to_move="${1}/${filename}/HaleGE/data"
+
+        aws s3 mv "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude '*.DS_Store*'
+
+        if [[ $? -eq 0 ]]; then
+            rm ${file}
+        fi
+
+    done
 
 done
