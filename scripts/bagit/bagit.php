@@ -56,16 +56,6 @@ $subseries_names = [
   'D' => 'General',
 ];
 
-// set up logs directory
-$csv_file_path_parts = pathinfo($csv_file);
-$csv_batch_directory = $csv_file_path_parts['filename'];
-if (!is_dir("{$bag_destination_path}/{$csv_batch_directory}/logs/{$collection_id}")) {
-  if (!mkdir("{$bag_destination_path}/{$csv_batch_directory}/logs/{$collection_id}", 0777, TRUE)) {
-    exit("🚫 exited: failed to create {$bag_destination_path}/{$csv_batch_directory}/logs/{$collection_id} directory...\n");
-  }
-}
-$logs_directory = "{$bag_destination_path}/{$csv_batch_directory}/logs/{$collection_id}";
-
 // open the csv file and save the data to an array
 // NOTE: no real validation is done of the file contents
 if (($handle = fopen("$csv_file", "r")) !== FALSE) {
@@ -88,6 +78,8 @@ foreach ($data as $folder_data) {
   if (empty($folder_data[0])) {
     continue;
   }
+
+  // set up all variables and paths
 
   // pad the series number with zeros totaling 2 digits
   $series_number_padded = str_pad($folder_data[0], 2, '0', STR_PAD_LEFT);
@@ -113,15 +105,12 @@ foreach ($data as $folder_data) {
 
   // set up directory strings
   $collection_directory_string = $collection_id;
-  $collection_directory_path = "{$bag_destination_path}/{$csv_batch_directory}/{$collection_directory_string}";
+  $folder_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$subseries_chars_padded}_{$box_number_padded}_{$folder_number_padded}_{$folder_name_alnum}";
+  $collection_directory_path = "{$bag_destination_path}/{$folder_directory_string}/{$collection_directory_string}";
   $series_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$series_name_alnum}";
   if (!empty($folder_data[1])) {
     $subseries_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$subseries_chars_padded}_{$subseries_name_alnum}";
   }
-  $folder_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$subseries_chars_padded}_{$box_number_padded}_{$folder_number_padded}_{$folder_name_alnum}";
-
-  // debug
-  echo "\n📂 begin processing {$folder_directory_string}\n";
 
   // set up full path conditionally with subseries
   if (!empty($folder_data[1])) {
@@ -142,6 +131,18 @@ foreach ($data as $folder_data) {
 
   $first_file_number = $folder_data[17];
   $last_file_number = $folder_data[18];
+
+  // set up logs directory
+  if (!is_dir("{$bag_destination_path}/{$folder_directory_string}/logs")) {
+    if (!mkdir("{$bag_destination_path}/{$folder_directory_string}/logs", 0777, TRUE)) {
+      exit("🚫 exited: failed to create {$bag_destination_path}/{$folder_directory_string}/logs directory...\n");
+    }
+  }
+  $logs_directory = "{$bag_destination_path}/{$folder_directory_string}/logs";
+
+  // actually start processing
+
+  echo "\n📂 begin processing {$folder_directory_string}\n";
 
   // loop over all the files for the folder record and then calculate a page number
   $file_count = $folder_data[19];
@@ -183,7 +184,7 @@ foreach ($data as $folder_data) {
 
       $filesize = filesize($page_file_path);
 
-    }
+    } // end if
 
     $filesize_counter = $filesize_counter + $filesize;
     $file_counter++;
@@ -252,7 +253,16 @@ foreach ($data as $folder_data) {
     $processes = '1';
   }
 
+  // We need to actually bag each folder twice: the first time at the folder
+  // level itself, and the second time at the collection level. The different
+  // folder-collection-level metadata will be compiled into the final
+  // bag-info.txt file and manifest-sha512.txt file in the permanent top-level
+  // collection directory.
+
   // bagit
+
+  echo "\nℹ️  begin bagging folder: {$folder_directory_string}\n";
+
   $folder_directory_realpath = realpath($folder_directory_path);
   // debug
   echo "\n🐞 python3 -m bagit --wrap 79 --sha512 --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'\n";
@@ -264,73 +274,125 @@ foreach ($data as $folder_data) {
 //  echo "🤖 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate.log' '{$folder_directory_realpath}'\n";
 //  exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate.log' '{$folder_directory_realpath}'");
 
+
+  // We are creating intermediate bags that will be used to supply metadata to
+  // the final collection-level bag.
+
+  echo "\nℹ️  begin bagging intermediate collection for: {$folder_directory_string}\n";
+
+  $external_description = "THIS IS AN INTERMEDIATE BAG THAT WILL ONLY BE USED FOR HARVESTING THE 'Payload-Oxum' DATA FROM THE 'bag-info.txt' FILE AND THE COMPLETE 'manifest-sha512.txt' FILE.";
+
+  $collection_directory_realpath = realpath($collection_directory_path);
+
+  // debug
+  echo "\n🐞 python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit.log' --external-description '{$external_description}' '{$collection_directory_realpath}'\n";
+
+  exec("python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit.log' --external-description '{$external_description}' '{$collection_directory_realpath}'");
+
+  // remove any .DS_Store files from the file structure before validation
+  $objects = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($collection_directory_realpath, FilesystemIterator::SKIP_DOTS)
+  );
+  foreach($objects as $object) {
+    if (basename($object) == '.DS_Store') {
+      unlink($object);
+    }
+  }
+
+  // validate
+
+  // debug
+  echo "\n🐞 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'\n";
+
+  exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'", $output, $validate_return_status);
+
+  // offload
+
+  // mark validation status so watcher script can take over
+  if ($validate_return_status == 0) {
+
+    // make 'validated' directory if it does not exist
+    if (!is_dir("{$bag_destination_path}/validated")) {
+      if (!mkdir("{$bag_destination_path}/validated", 0777, TRUE)) {
+        exit("🚫 exited: failed to create {$bag_destination_path}/validated directory...\n");
+      }
+    }
+
+    // touch a file to indicate folder has been validated
+    touch("{$bag_destination_path}/validated/{$folder_directory_string}");
+  }
+  else {
+    // batch did not validate
+    echo "\n🐞 did not validate \n";
+  }
+
 } // end folder loop
 
 $folder_time = (microtime(TRUE) - $folder_timer_start);
 echo "\n⏱  folder time: {$folder_time}\n";
 
-// debug
-echo "\n🗄  begin processing top-level: {$collection_id}\n";
-
-$external_description = "Manuscript collection of astrophysicist George Ellery Hale’s personal and professional papers, digitized from microfilm into unprocessed grayscale TIFF files.";
-// NOTE: bagit-python does not seem to respect line breaks passed in the
-// command line options, so we cannot strictly follow the recommendation for
-// line wrapping in bagit-info.txt
-// see https://github.com/LibraryOfCongress/bagit-python/issues/126
-//$external_description = "External-Description: $external_description";
-//$external_description = wordwrap($external_description, 79, "\r\n ");
-//$external_description = str_replace("External-Description: ", '', $external_description);
-
-$external_id = $collection_id;
-
-// use a single process unless set differently in config file
-if (empty($processes)) {
-  $processes = '1';
-}
-
-$collection_timer_start = microtime(TRUE);
-
-// bagit all
-$collection_directory_realpath = realpath($collection_directory_path);
-// debug
-echo "\n🐞 python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' '{$collection_directory_realpath}'\n";
-exec("python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' '{$collection_directory_realpath}'");
-// debug
-//echo "🤖 python3 -m bagit --validate --fast --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate-fast.log' '{$collection_directory_realpath}'\n";
-//exec("python3 -m bagit --validate --fast --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate-fast.log' '{$collection_directory_realpath}'");
-
-// remove any .DS_Store files from the file structure before validation
-$objects = new RecursiveIteratorIterator(
-  new RecursiveDirectoryIterator($collection_directory_realpath, FilesystemIterator::SKIP_DOTS)
-);
-foreach($objects as $object) {
-  if (basename($object) == '.DS_Store') {
-    unlink($object);
-  }
-}
-
-// debug
-echo "\n🐞 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'\n";
-exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'", $output, $validate_return_status);
-
-if ($validate_return_status == 0) {
-  // move data folder to S3 and send output to log file
-  // NOTE: consider how best to divvy up resources; `aws s3 mv` takes place in
-  // the background for an unknown length of time after this script finishes;
-  // if many instances of this script are run in sequence, server resources will
-  // likely become exhausted at some point when uploads to aws are queued up for
-  // every processor
-  //// debug
-  echo "\n🐞 aws s3 mv {$collection_directory_realpath}/data s3://archives-bagit-tmp/{$collection_id}/data --recursive --no-progress --exclude '*.DS_Store*' > {$logs_directory}/{$collection_id}_bagit-aws-s3-mv.log &\n";
-  exec("aws s3 mv {$collection_directory_realpath}/data s3://archives-bagit-tmp/{$collection_id}/data --recursive --no-progress --exclude '*.DS_Store*' > {$logs_directory}/{$collection_id}_bagit-aws-s3-mv.log &");
-}
-else {
-  // batch did not validate
-  echo "\n🐞 did not validate \n";
-}
-
-$collection_time = (microtime(TRUE) - $collection_timer_start);
-echo "\n⏱  collection time: {$collection_time}\n";
+//// debug
+//echo "\n🗄  begin processing top-level: {$collection_id}\n";
+//
+//$external_description = "Manuscript collection of astrophysicist George Ellery Hale’s personal and professional papers, digitized from microfilm into unprocessed grayscale TIFF files.";
+//// NOTE: bagit-python does not seem to respect line breaks passed in the
+//// command line options, so we cannot strictly follow the recommendation for
+//// line wrapping in bagit-info.txt
+//// see https://github.com/LibraryOfCongress/bagit-python/issues/126
+////$external_description = "External-Description: $external_description";
+////$external_description = wordwrap($external_description, 79, "\r\n ");
+////$external_description = str_replace("External-Description: ", '', $external_description);
+//
+//$external_id = $collection_id;
+//
+//// use a single process unless set differently in config file
+//if (empty($processes)) {
+//  $processes = '1';
+//}
+//
+//$collection_timer_start = microtime(TRUE);
+//
+//// bagit all
+//$collection_directory_realpath = realpath($collection_directory_path);
+//// debug
+//echo "\n🐞 python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' '{$collection_directory_realpath}'\n";
+//exec("python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' '{$collection_directory_realpath}'");
+//// debug
+////echo "🤖 python3 -m bagit --validate --fast --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate-fast.log' '{$collection_directory_realpath}'\n";
+////exec("python3 -m bagit --validate --fast --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate-fast.log' '{$collection_directory_realpath}'");
+//
+//// remove any .DS_Store files from the file structure before validation
+//$objects = new RecursiveIteratorIterator(
+//  new RecursiveDirectoryIterator($collection_directory_realpath, FilesystemIterator::SKIP_DOTS)
+//);
+//foreach($objects as $object) {
+//  if (basename($object) == '.DS_Store') {
+//    unlink($object);
+//  }
+//}
+//
+//// debug
+//echo "\n🐞 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'\n";
+//exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'", $output, $validate_return_status);
+//
+//if ($validate_return_status == 0) {
+//  // move data folder to S3 and send output to log file
+//  // NOTE: consider how best to divvy up resources; `aws s3 mv` takes place in
+//  // the background for an unknown length of time after this script finishes;
+//  // if many instances of this script are run in sequence, server resources will
+//  // likely become exhausted at some point when uploads to aws are queued up for
+//  // every processor
+//  //// debug
+//  echo "\n🐞 aws s3 mv {$collection_directory_realpath}/data s3://archives-bagit-tmp/{$collection_id}/data --recursive --no-progress --exclude '*.DS_Store*' > {$logs_directory}/{$collection_id}_bagit-aws-s3-mv.log &\n";
+////  exec("aws s3 mv {$collection_directory_realpath}/data s3://archives-bagit-tmp/{$collection_id}/data --recursive --no-progress --exclude '*.DS_Store*' > {$logs_directory}/{$collection_id}_bagit-aws-s3-mv.log &");
+//}
+//else {
+//  // batch did not validate
+//  echo "\n🐞 did not validate \n";
+//}
+//
+//$collection_time = (microtime(TRUE) - $collection_timer_start);
+//echo "\n⏱  collection time: {$collection_time}\n";
 
 // adapted from http://php.net/manual/en/function.filesize.php#116205
 function human_filesize($bytes, $decimals = 2) {
@@ -348,17 +410,17 @@ function human_filesize($bytes, $decimals = 2) {
   return number_format($bytes / pow(1000, $factor), $decimals) . " {$prefix}B";
 }
 
-// this should give the same output as `du -bs $path`
-function GetDirectorySize($path){
-  $bytestotal = 0;
-  $path = realpath($path);
-  if($path!==false && $path!='' && file_exists($path)){
-    foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)) as $object){
-      $bytestotal += $object->getSize();
-    }
-  }
-  return $bytestotal;
-}
+//// this should give the same output as `du -bs $path`
+//function GetDirectorySize($path){
+//  $bytestotal = 0;
+//  $path = realpath($path);
+//  if($path!==false && $path!='' && file_exists($path)){
+//    foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)) as $object){
+//      $bytestotal += $object->getSize();
+//    }
+//  }
+//  return $bytestotal;
+//}
 
 //echo GetDirectorySize($path) . "\n";
 
