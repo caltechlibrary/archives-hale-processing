@@ -320,6 +320,18 @@ foreach ($data as $folder_data) {
 
     // touch a file to indicate folder has been validated
     touch("{$bag_destination_path}/validated/{$folder_directory_string}");
+
+    // run script to move files to s3 if it is not running already
+    if (file_exists("{$bag_destination_path}/aws-s3-mv.running")) {
+      echo "\n🤖 move script is already running\n";
+    }
+    else {
+      $aws_s3_mv = __DIR__ . "/aws-s3-mv.sh";
+      // debug
+      echo "\n🐞 bash {$aws_s3_mv} {$bag_destination_path} > {$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-mv.log &\n";
+      exec("bash {$aws_s3_mv} {$bag_destination_path} > {$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-mv.log &");
+    }
+
   }
   else {
     // batch did not validate
@@ -329,7 +341,29 @@ foreach ($data as $folder_data) {
 } // end folder loop
 
 $folder_time = (microtime(TRUE) - $folder_timer_start);
-echo "\n⏱  folder time: {$folder_time}\n";
+echo "\n⏱  folder time: {$folder_time} (final aws s3 mv operation may still need to run)\n";
+
+// run the move script in a new process one last time to catch any final
+// validated files that were not caught in the last for loop of the move script
+$aws_s3_mv = __DIR__ . "/aws-s3-mv.sh";
+// debug
+echo "\n🐞 " . 'exec(\"bash {$aws_s3_mv} {$bag_destination_path}\", $aws_s3_mv_output, $aws_s3_mv_return_status)' . "\n";
+exec("bash {$aws_s3_mv} {$bag_destination_path}", $aws_s3_mv_output, $aws_s3_mv_return_status);
+
+// log the output
+file_put_contents("{$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-mv-FINAL.log", implode("\n", $aws_s3_mv_output));
+
+if ($aws_s3_mv_return_status === 0) {
+
+  rmdir("{$bag_destination_path}/validated");
+
+  // start the top-level bag compilation script
+  $compile_collection_bag = __DIR__ . "/compile-collection-bag.php";
+  // debug
+  echo "\n🐞 " . 'exec("php $compile_collection_bag")' . "\n";
+  exec("php $compile_collection_bag");
+
+}
 
 //// debug
 //echo "\n🗄  begin processing top-level: {$collection_id}\n";
