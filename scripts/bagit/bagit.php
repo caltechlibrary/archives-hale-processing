@@ -245,7 +245,7 @@ foreach ($data as $folder_data) {
     $bag_size = human_filesize($filesize_counter + filesize("{$folder_directory_path}/{$folder_files_prefix}.xml"));
   }
   catch (Exception $e) {
-    echo 'Caught exception: ',  $e->getMessage(), "\n";
+    echo '🛑 caught exception: ',  $e->getMessage(), "\n";
   }
 
   // use a single process unless set differently in config file
@@ -253,11 +253,13 @@ foreach ($data as $folder_data) {
     $processes = '1';
   }
 
+  //
   // We need to actually bag each folder twice: the first time at the folder
   // level itself, and the second time at the collection level. The different
   // folder-collection-level metadata will be compiled into the final
   // bag-info.txt file and manifest-sha512.txt file in the permanent top-level
   // collection directory.
+  //
 
   // bagit
 
@@ -267,16 +269,11 @@ foreach ($data as $folder_data) {
   // debug
   echo "\n🐞 python3 -m bagit --wrap 79 --sha512 --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'\n";
   exec("python3 -m bagit --wrap 79 --sha512 --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'");
-  // debug
-//  echo "🤖 python3 -m bagit --validate --fast --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate-fast.log' '{$folder_directory_realpath}'\n";
-//  exec("python3 -m bagit --validate --fast --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate-fast.log' '{$folder_directory_realpath}'");
-  // debug
-//  echo "🤖 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate.log' '{$folder_directory_realpath}'\n";
-//  exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate.log' '{$folder_directory_realpath}'");
 
-
+  //
   // We are creating intermediate bags that will be used to supply metadata to
   // the final collection-level bag.
+  //
 
   echo "\nℹ️  begin bagging intermediate collection for: {$folder_directory_string}\n";
 
@@ -306,7 +303,11 @@ foreach ($data as $folder_data) {
 
   exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'", $output, $validate_return_status);
 
-  // offload
+  //
+  // offload moving the bags around to another script
+  // @TODO: create a command line flag to choose among options here
+  // for example, one might move files and one might copy files
+  //
 
   // mark validation status so watcher script can take over
   if ($validate_return_status == 0) {
