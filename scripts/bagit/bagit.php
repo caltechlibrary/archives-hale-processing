@@ -310,9 +310,9 @@ foreach ($data as $folder_data) {
   // validate
 
   // debug
-  echo "\n🐞 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'\n";
+  echo "\n🐞 python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate.log' '{$folder_directory_realpath}'\n";
 
-  exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit-validate.log' '{$collection_directory_realpath}'", $output, $validate_return_status);
+  exec("python3 -m bagit --validate --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit-validate.log' '{$folder_directory_realpath}'", $output, $validate_return_status);
 
   //
   // offload moving the bags around to another script
