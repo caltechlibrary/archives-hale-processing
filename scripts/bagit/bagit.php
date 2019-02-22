@@ -8,6 +8,11 @@
  * numbers for the files within the bags... (in progress)
  */
 
+// change of plans, since we are going to leave the structure on the NAS for
+// copying to tape; sending files to S3 immediately does not matter anymore; we
+// will create the entire structure on the NAS and then send it all to S3
+// together
+
 // capture cli options
 $options = getopt('', array('csv:', 'mv'));
 
@@ -117,7 +122,7 @@ foreach ($data as $folder_data) {
   // set up directory strings
   $collection_directory_string = $collection_id;
   $folder_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$subseries_chars_padded}_{$box_number_padded}_{$folder_number_padded}_{$folder_name_alnum}";
-  $collection_directory_path = "{$bag_destination_path}/{$folder_directory_string}/{$collection_directory_string}";
+  $collection_directory_path = "{$bag_destination_path}/{$collection_directory_string}";
   $series_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$series_name_alnum}";
   if (!empty($folder_data[1])) {
     $subseries_directory_string = "{$collection_directory_string}_{$series_number_padded}_{$subseries_chars_padded}_{$subseries_name_alnum}";
@@ -144,12 +149,12 @@ foreach ($data as $folder_data) {
   $last_file_number = $folder_data[18];
 
   // set up logs directory
-  if (!is_dir("{$bag_destination_path}/{$folder_directory_string}/logs")) {
-    if (!mkdir("{$bag_destination_path}/{$folder_directory_string}/logs", 0777, TRUE)) {
-      exit("🚫 exited: failed to create {$bag_destination_path}/{$folder_directory_string}/logs directory...\n");
+  if (!is_dir("{$bag_destination_path}/logs/{$folder_directory_string}")) {
+    if (!mkdir("{$bag_destination_path}/logs/{$folder_directory_string}", 0777, TRUE)) {
+      exit("🚫 exited: failed to create {$bag_destination_path}/logs/{$folder_directory_string} directory...\n");
     }
   }
-  $logs_directory = "{$bag_destination_path}/{$folder_directory_string}/logs";
+  $logs_directory = "{$bag_destination_path}/logs/{$folder_directory_string}";
 
   // actually start processing
 
@@ -286,26 +291,26 @@ foreach ($data as $folder_data) {
   // the final collection-level bag.
   //
 
-  echo "\nℹ️  begin bagging intermediate collection for: {$folder_directory_string}\n";
+//  echo "\nℹ️  begin bagging intermediate collection for: {$folder_directory_string}\n";
 
-  $external_description = "THIS IS AN INTERMEDIATE BAG THAT WILL ONLY BE USED FOR HARVESTING THE 'Payload-Oxum' DATA FROM THE 'bag-info.txt' FILE AND THE COMPLETE 'manifest-sha512.txt' FILE.";
+//  $external_description = "THIS IS AN INTERMEDIATE BAG THAT WILL ONLY BE USED FOR HARVESTING THE 'Payload-Oxum' DATA FROM THE 'bag-info.txt' FILE AND THE COMPLETE 'manifest-sha512.txt' FILE.";
 
-  $collection_directory_realpath = realpath($collection_directory_path);
+//  $collection_directory_realpath = realpath($collection_directory_path);
 
   // debug
-  echo "\n🐞 python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit.log' --external-description '{$external_description}' '{$collection_directory_realpath}'\n";
+//  echo "\n🐞 python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit.log' --external-description '{$external_description}' '{$collection_directory_realpath}'\n";
 
-  exec("python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit.log' --external-description '{$external_description}' '{$collection_directory_realpath}'");
+//  exec("python3 -m bagit --sha512 --processes '{$processes}' --log '{$logs_directory}/{$collection_id}_bagit.log' --external-description '{$external_description}' '{$collection_directory_realpath}'");
 
   // remove any .DS_Store files from the file structure before validation
-  $objects = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator($collection_directory_realpath, FilesystemIterator::SKIP_DOTS)
-  );
-  foreach($objects as $object) {
-    if (basename($object) == '.DS_Store') {
-      unlink($object);
-    }
-  }
+//  $objects = new RecursiveIteratorIterator(
+//    new RecursiveDirectoryIterator($collection_directory_realpath, FilesystemIterator::SKIP_DOTS)
+//  );
+//  foreach($objects as $object) {
+//    if (basename($object) == '.DS_Store') {
+//      unlink($object);
+//    }
+//  }
 
   // validate
 
@@ -333,16 +338,16 @@ foreach ($data as $folder_data) {
     // touch a file to indicate folder has been validated
     touch("{$bag_destination_path}/validated/{$folder_directory_string}");
 
-    // run script to move files to s3 if it is not running already
-    if (file_exists("{$bag_destination_path}/aws-script.running")) {
-      echo "\n🤖 aws script is already running\n";
-    }
-    else {
-      $aws_script = __DIR__ . "/aws-s3-{$op}.sh";
-      // debug
-      echo "\n🐞 bash {$aws_script} {$bag_destination_path} > {$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-{$op}.log &\n";
-      exec("bash {$aws_script} {$bag_destination_path} > {$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-{$op}.log &");
-    }
+//    // run script to move files to s3 if it is not running already
+//    if (file_exists("{$bag_destination_path}/aws-script.running")) {
+//      echo "\n🤖 aws script is already running\n";
+//    }
+//    else {
+//      $aws_script = __DIR__ . "/aws-s3-{$op}.sh";
+//      // debug
+//      echo "\n🐞 bash {$aws_script} {$bag_destination_path} > {$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-{$op}.log &\n";
+//      exec("bash {$aws_script} {$bag_destination_path} > {$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-{$op}.log &");
+//    }
 
   }
   else {
@@ -355,27 +360,27 @@ foreach ($data as $folder_data) {
 $folder_time = (microtime(TRUE) - $folder_timer_start);
 echo "\n⏱  folder time: {$folder_time} (final aws operation may still need to run)\n";
 
-// run the move script in a new process one last time to catch any final
-// validated files that were not caught in the last for loop of the move script
-$aws_script = __DIR__ . "/aws-s3-{$op}.sh";
-// debug
-echo "\n🐞 " . 'exec(\"bash {$aws_script} {$bag_destination_path}\", $aws_script_output, $aws_script_return_status)' . "\n";
-exec("bash {$aws_script} {$bag_destination_path}", $aws_script_output, $aws_script_return_status);
-
-// log the output
-file_put_contents("{$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-{$op}-FINAL.log", implode("\n", $aws_script_output));
-
-if ($aws_script_return_status === 0) {
-
-  rmdir("{$bag_destination_path}/validated");
-
-  // start the top-level bag compilation script
-  $compile_collection_bag = __DIR__ . "/compile-collection-bag.php";
-  // debug
-  echo "\n🐞 " . 'exec("php $compile_collection_bag")' . "\n";
-  exec("php $compile_collection_bag");
-
-}
+//// run the move script in a new process one last time to catch any final
+//// validated files that were not caught in the last for loop of the move script
+//$aws_script = __DIR__ . "/aws-s3-{$op}.sh";
+//// debug
+//echo "\n🐞 " . 'exec(\"bash {$aws_script} {$bag_destination_path}\", $aws_script_output, $aws_script_return_status)' . "\n";
+//exec("bash {$aws_script} {$bag_destination_path}", $aws_script_output, $aws_script_return_status);
+//
+//// log the output
+//file_put_contents("{$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-{$op}-FINAL.log", implode("\n", $aws_script_output));
+//
+//if ($aws_script_return_status === 0) {
+//
+//  rmdir("{$bag_destination_path}/validated");
+//
+//  // start the top-level bag compilation script
+//  $compile_collection_bag = __DIR__ . "/compile-collection-bag.php";
+//  // debug
+//  echo "\n🐞 " . 'exec("php $compile_collection_bag")' . "\n";
+//  exec("php $compile_collection_bag");
+//
+//}
 
 //// debug
 //echo "\n🗄  begin processing top-level: {$collection_id}\n";
