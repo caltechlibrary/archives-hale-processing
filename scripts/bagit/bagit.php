@@ -8,15 +8,26 @@
  * numbers for the files within the bags... (in progress)
  */
 
-// get the path to the csv file from the command-line argument
-if (empty($argv[1])) {
-  exit("\n🚫 exited: please supply the path to a CSV file\n➡️  example: php bagit.php /path/to/file.csv\n");
+// capture cli options
+$options = getopt('', array('csv:', 'mv'));
+
+// get the path to the csv file from the command-line option
+if (empty($options)) {
+  exit("\n🚫 exited: the path to a CSV file is required\n➡️  example: php bagit.php --csv /path/to/file.csv\n");
 }
-elseif (!file_exists($argv[1])) {
-  exit("\n🚫 exited: no file exists at supplied path\n➡️  example: php bagit.php /path/to/file.csv\n");
+elseif (!file_exists($options['csv'])) {
+  exit("\n🚫 exited: no file exists at supplied path\n➡️  example: php bagit.php --csv /path/to/file.csv\n");
 }
 else {
-  $csv_file = $argv[1];
+  $csv_file = $options['csv'];
+}
+
+// set aws s3 operation based on cli option (default to 'cp')
+if (array_key_exists('mv', $options)) {
+  $op = 'mv';
+}
+else {
+  $op = 'cp';
 }
 
 $config_file = __DIR__ . "/config.bagit.inc";
@@ -323,14 +334,14 @@ foreach ($data as $folder_data) {
     touch("{$bag_destination_path}/validated/{$folder_directory_string}");
 
     // run script to move files to s3 if it is not running already
-    if (file_exists("{$bag_destination_path}/aws-s3-mv.running")) {
-      echo "\n🤖 move script is already running\n";
+    if (file_exists("{$bag_destination_path}/aws-script.running")) {
+      echo "\n🤖 aws script is already running\n";
     }
     else {
-      $aws_s3_mv = __DIR__ . "/aws-s3-mv.sh";
+      $aws_script = __DIR__ . "/aws-s3-{$op}.sh";
       // debug
-      echo "\n🐞 bash {$aws_s3_mv} {$bag_destination_path} > {$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-mv.log &\n";
-      exec("bash {$aws_s3_mv} {$bag_destination_path} > {$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-mv.log &");
+      echo "\n🐞 bash {$aws_script} {$bag_destination_path} > {$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-{$op}.log &\n";
+      exec("bash {$aws_script} {$bag_destination_path} > {$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-{$op}.log &");
     }
 
   }
@@ -342,19 +353,19 @@ foreach ($data as $folder_data) {
 } // end folder loop
 
 $folder_time = (microtime(TRUE) - $folder_timer_start);
-echo "\n⏱  folder time: {$folder_time} (final aws s3 mv operation may still need to run)\n";
+echo "\n⏱  folder time: {$folder_time} (final aws operation may still need to run)\n";
 
 // run the move script in a new process one last time to catch any final
 // validated files that were not caught in the last for loop of the move script
-$aws_s3_mv = __DIR__ . "/aws-s3-mv.sh";
+$aws_script = __DIR__ . "/aws-s3-{$op}.sh";
 // debug
-echo "\n🐞 " . 'exec(\"bash {$aws_s3_mv} {$bag_destination_path}\", $aws_s3_mv_output, $aws_s3_mv_return_status)' . "\n";
-exec("bash {$aws_s3_mv} {$bag_destination_path}", $aws_s3_mv_output, $aws_s3_mv_return_status);
+echo "\n🐞 " . 'exec(\"bash {$aws_script} {$bag_destination_path}\", $aws_script_output, $aws_script_return_status)' . "\n";
+exec("bash {$aws_script} {$bag_destination_path}", $aws_script_output, $aws_script_return_status);
 
 // log the output
-file_put_contents("{$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-mv-FINAL.log", implode("\n", $aws_s3_mv_output));
+file_put_contents("{$logs_directory}/{$folder_files_prefix}_bagit-aws-s3-{$op}-FINAL.log", implode("\n", $aws_script_output));
 
-if ($aws_s3_mv_return_status === 0) {
+if ($aws_script_return_status === 0) {
 
   rmdir("{$bag_destination_path}/validated");
 
