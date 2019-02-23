@@ -43,7 +43,7 @@ else {
   exit("\n🚫 exited: config.bagit.inc file does not exist\n");
 }
 
-if (empty("$csv_file") || empty("$reel_source_path") || empty("$bag_destination_path") || empty("$islandora_url") || empty("$collection_id") || empty("$source_organization") || empty("$contact_name") || empty("$contact_email")) {
+if (empty("$csv_file") || empty("$reel_source_path") || empty("$bag_destination_path") || empty("$islandora_url") || empty("$collection_id") || empty("$source_organization") || empty("$contact_email")) {
   exit("\n🚫 exited: parameters not set in config.bagit.inc file\n");
 }
 
@@ -283,8 +283,8 @@ foreach ($data as $folder_data) {
 
   $folder_directory_realpath = realpath($folder_directory_path);
   // debug
-  echo "\n🐞 python3 -m bagit --wrap 79 --sha512 --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'\n";
-  exec("python3 -m bagit --wrap 79 --sha512 --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-name '{$contact_name}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'");
+  echo "\n🐞 python3 -m bagit --wrap 79 --sha512 --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'\n";
+  exec("python3 -m bagit --wrap 79 --sha512 --processes '{$processes}' --log '{$logs_directory}/{$folder_files_prefix}_bagit.log' --source-organization '{$source_organization}' --contact-email '{$contact_email}' --external-description '{$external_description}' --external-identifier '{$external_id}' --bag-size '{$bag_size}' --bag-group-identifier '{$bag_group_id}' '{$folder_directory_realpath}'");
 
   //
   // We are creating intermediate bags that will be used to supply metadata to
