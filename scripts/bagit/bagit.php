@@ -8,11 +8,6 @@
  * numbers for the files within the bags... (in progress)
  */
 
-// change of plans, since we are going to leave the structure on the NAS for
-// copying to tape; sending files to S3 immediately does not matter anymore; we
-// will create the entire structure on the NAS and then send it all to S3
-// together
-
 // capture cli options
 $options = getopt('', array('csv:', 'mv'));
 
@@ -251,9 +246,9 @@ foreach ($data as $folder_data) {
   // command line options, so we cannot strictly follow the recommendation for
   // line wrapping in bagit-info.txt
   // see https://github.com/LibraryOfCongress/bagit-python/issues/126
-//  $external_description = "External-Description: $external_description";
-//  $external_description = wordwrap($external_description, 79, "\r\n ");
-//  $external_description = str_replace("External-Description: ", '', $external_description);
+  //  $external_description = "External-Description: $external_description";
+  //  $external_description = wordwrap($external_description, 79, "\r\n ");
+  //  $external_description = str_replace("External-Description: ", '', $external_description);
 
   $external_id = $folder_directory_string;
 
