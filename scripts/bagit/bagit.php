@@ -144,12 +144,12 @@ foreach ($data as $folder_data) {
   $last_file_number = $folder_data[18];
 
   // set up logs directory
-  if (!is_dir("{$bag_destination_path}/{$folder_directory_string}/logs")) {
-    if (!mkdir("{$bag_destination_path}/{$folder_directory_string}/logs", 0777, TRUE)) {
-      exit("🚫 exited: failed to create {$bag_destination_path}/{$folder_directory_string}/logs directory...\n");
+  if (!is_dir("{$bag_destination_path}/logs/{$folder_directory_string}")) {
+    if (!mkdir("{$bag_destination_path}/logs/{$folder_directory_string}", 0777, TRUE)) {
+      exit("🚫 exited: failed to create {$bag_destination_path}/logs/{$folder_directory_string} directory...\n");
     }
   }
-  $logs_directory = "{$bag_destination_path}/{$folder_directory_string}/logs";
+  $logs_directory = "{$bag_destination_path}/logs/{$folder_directory_string}";
 
   // actually start processing
 
