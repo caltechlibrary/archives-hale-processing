@@ -48,9 +48,10 @@ echo '🐞 aws s3 cp "${directory_to_move}" s3://archives-hale/HaleGE/data --rec
 
         if [[ $? -eq 0 ]]; then
 echo "🐞 rm ${file}"
+echo "🐞 rm -r ${1}/${filename}/HaleGE"
 echo "🐞 rm -r ${1}/${filename}"
-            sleep 5
             rm ${file}
+            rm -r "${1}/${filename}/HaleGE"
             rm -r "${1}/${filename}"
         fi
 echo "🐞 end for"
