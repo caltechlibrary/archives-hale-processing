@@ -40,7 +40,7 @@ echo "🐞 begin for"
 
         # move into collection structure
 
-        cp -arl "${directory_to_move}" "${1}/HaleGE"
+        cp -arl "${directory_to_move}" "${1}/HaleGE/"
 
         # move structure to S3
 
@@ -49,9 +49,9 @@ echo '🐞 aws s3 cp "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data 
 
         if [[ $? -eq 0 ]]; then
 echo "🐞 rm ${file}"
-echo "🐞 rm -r ${directory_to_move}"
+echo "🐞 rm -r ${1}/${filename}"
             rm ${file}
-            rm -r "${directory_to_move}"
+            rm -r "${1}/${filename}"
         fi
 echo "🐞 end for"
     done
