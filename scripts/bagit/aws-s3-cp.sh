@@ -6,7 +6,7 @@
 # display message when no arguments are given
 if [[ $# == 0 ]]; then
     printf "\n\e[1;91m😵 error:\e[0m supply the path of the processing output directory\n"
-    printf "➡️  example: bash aws-s3-mv.sh /path/to/directory\n\n"
+    printf "➡️  example: bash aws-s3-cp.sh /path/to/directory\n\n"
     exit 1
 fi
 
@@ -21,8 +21,8 @@ echo "🐞 begin while"
     # move any validated files into a unique processing folder
     processing_directory=${1}/processing_${RANDOM}
 echo "$processing_directory"
-    mkdir -p "$processing_directory"
-    mv "$1"/validated/HaleGE_* "$processing_directory"/
+    mkdir -p "$processing"
+    cp "$1"/validated/HaleGE_* "$processing_directory"/
 
     for file in "$processing_directory"/HaleGE_*; do
 echo "🐞 begin for"
@@ -40,21 +40,27 @@ echo "🐞 begin for"
         # 'HaleGE' part, but that seems unnecessary right now
         directory_to_move="${1}/${filename}/HaleGE/data"
 
-echo '🐞 aws s3 mv "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude "*.DS_Store*"'
-        aws s3 mv "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude '*.DS_Store*'
+echo '🐞 aws s3 cp "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude "*.DS_Store*"'
+        aws s3 cp "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude '*.DS_Store*'
 
         if [[ $? -eq 0 ]]; then
 echo "🐞 rm ${file}"
             rm ${file}
         fi
+
+        if [[ $? -eq 0 ]]; then
+echo "🐞 rm ${file}"
+            rm ${file}
+        fi
+
 echo "🐞 end for"
     done
 
     rm -r "$processing_directory"
 
-    if [[ -f "$1"/aws-s3-mv.running ]]; then
-echo "🐞 rm "$1"/aws-s3-mv.running"
-        rm "$1"/aws-s3-mv.running
+    if [[ -f "$1"/aws-s3-cp.running ]]; then
+echo "🐞 rm ${1}/aws-s3-cp.running"
+        rm "$1"/aws-s3-cp.running
     fi
 
 echo "🐞 end while"
