@@ -62,8 +62,7 @@ foreach($objects as $object) {
 $baginfo = array(
   'Bag-Software-Agent: bagit.py v1.7.0 <https://github.com/LibraryOfCongress/bagit-python>',
   'Bagging-Date: ' . date('Y-m-d'),
-  'Contact-Email: pcollopy@caltech.edu',
-  'Contact-Name: Peter Collopy',
+  'Contact-Email: archives@caltech.edu',
   'External-Description: Manuscript collection of astrophysicist George Ellery',
   ' Hale’s personal and professional papers, digitized from microfilm into',
   ' unprocessed grayscale TIFF files with accompanying metadata in MODS format.',
