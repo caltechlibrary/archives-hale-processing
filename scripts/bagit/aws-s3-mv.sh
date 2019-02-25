@@ -37,13 +37,14 @@ echo "🐞 begin for"
         # @TODO we could technically parse the beginning of the ${filename} for the
         # 'HaleGE' part, but that seems unnecessary right now
         directory_to_move="${1}/${filename}/HaleGE/data"
+echo "directory to move: ${directory_to_move}"
 
         # move into collection structure
         mkdir -p "${1}/HaleGE/data"
         cp -arl "${directory_to_move}" "${1}/HaleGE/"
 
         # move structure to S3
-echo '🐞 aws s3 cp "${directory_to_move}" s3://archives-hale/HaleGE/data --recursive --exclude "*.DS_Store*" --no-progress'
+echo "🐞 aws s3 cp '${directory_to_move}' s3://archives-hale/HaleGE/data --recursive --exclude '*.DS_Store*' --no-progress"
         aws s3 cp "${directory_to_move}" s3://archives-hale/HaleGE/data --recursive --exclude '*.DS_Store*' --no-progress
 
         if [[ $? -eq 0 ]]; then
