@@ -40,8 +40,8 @@ echo "🐞 begin for"
         # 'HaleGE' part, but that seems unnecessary right now
         directory_to_move="${1}/${filename}/HaleGE/data"
 
-echo '🐞 aws s3 mv "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude "*.DS_Store*"'
-        aws s3 mv "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude '*.DS_Store*'
+echo '🐞 aws s3 cp "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude "*.DS_Store*" --no-progress'
+        aws s3 cp "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude '*.DS_Store*' --no-progress
 
         if [[ $? -eq 0 ]]; then
 echo "🐞 rm ${file}"
