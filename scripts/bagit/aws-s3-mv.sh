@@ -29,8 +29,6 @@ echo "🐞 begin for"
 
         echo ${file}
 
-        # move structure to S3
-
         # get the filename only, without the full path
         filename=${file##*/}
 
@@ -40,12 +38,20 @@ echo "🐞 begin for"
         # 'HaleGE' part, but that seems unnecessary right now
         directory_to_move="${1}/${filename}/HaleGE/data"
 
+        # move into collection structure
+
+        cp -arl "${directory_to_move}" "${1}/HaleGE"
+
+        # move structure to S3
+
 echo '🐞 aws s3 cp "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude "*.DS_Store*" --no-progress'
         aws s3 cp "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude '*.DS_Store*' --no-progress
 
         if [[ $? -eq 0 ]]; then
 echo "🐞 rm ${file}"
+echo "🐞 rm -r ${directory_to_move}"
             rm ${file}
+            rm -r "${directory_to_move}"
         fi
 echo "🐞 end for"
     done
