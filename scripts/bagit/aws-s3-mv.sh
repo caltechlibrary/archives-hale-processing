@@ -39,11 +39,9 @@ echo "🐞 begin for"
         directory_to_move="${1}/${filename}/HaleGE/data"
 
         # move into collection structure
-
-        cp -arl "${directory_to_move}" "${1}/HaleGE/"
+        cp -arl "${directory_to_move}" "${1}/HaleGE/data"
 
         # move structure to S3
-
 echo '🐞 aws s3 cp "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude "*.DS_Store*" --no-progress'
         aws s3 cp "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude '*.DS_Store*' --no-progress
 
@@ -59,7 +57,7 @@ echo "🐞 end for"
     rm -r "$processing_directory"
 
     if [[ -f "$1"/aws-s3-mv.running ]]; then
-echo "🐞 rm "$1"/aws-s3-mv.running"
+echo "🐞 rm ${1}/aws-s3-mv.running"
         rm "$1"/aws-s3-mv.running
     fi
 
