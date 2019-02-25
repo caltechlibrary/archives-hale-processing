@@ -43,8 +43,8 @@ echo "🐞 begin for"
         cp -arl "${directory_to_move}" "${1}/HaleGE/"
 
         # move structure to S3
-echo '🐞 aws s3 cp "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude "*.DS_Store*" --no-progress'
-        aws s3 cp "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude '*.DS_Store*' --no-progress
+echo '🐞 aws s3 cp "${directory_to_move}" s3://archives-hale/HaleGE/data --recursive --exclude "*.DS_Store*" --no-progress'
+        aws s3 cp "${directory_to_move}" s3://archives-hale/HaleGE/data --recursive --exclude '*.DS_Store*' --no-progress
 
         if [[ $? -eq 0 ]]; then
 echo "🐞 rm ${file}"
