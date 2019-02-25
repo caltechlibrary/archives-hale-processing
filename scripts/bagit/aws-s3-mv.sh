@@ -39,6 +39,7 @@ echo "🐞 begin for"
         directory_to_move="${1}/${filename}/HaleGE/data"
 
         # move into collection structure
+        mkdir -p "${1}/HaleGE/data"
         cp -arl "${directory_to_move}" "${1}/HaleGE/data"
 
         # move structure to S3
