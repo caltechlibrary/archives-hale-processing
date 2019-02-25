@@ -40,7 +40,7 @@ echo "🐞 begin for"
 
         # move into collection structure
         mkdir -p "${1}/HaleGE/data"
-        cp -arl "${directory_to_move}" "${1}/HaleGE/data"
+        cp -arl "${directory_to_move}" "${1}/HaleGE/"
 
         # move structure to S3
 echo '🐞 aws s3 cp "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude "*.DS_Store*" --no-progress'
