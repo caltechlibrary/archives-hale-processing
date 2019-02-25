@@ -21,7 +21,7 @@ echo "🐞 begin while"
     # move any validated files into a unique processing folder
     processing_directory=${1}/processing_${RANDOM}
 echo "$processing_directory"
-    mkdir -p "$processing"
+    mkdir -p "$processing_directory"
     cp "$1"/validated/HaleGE_* "$processing_directory"/
 
     for file in "$processing_directory"/HaleGE_*; do
