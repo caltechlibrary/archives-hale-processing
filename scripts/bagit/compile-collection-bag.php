@@ -72,10 +72,11 @@ $baginfo = array(
   'Source-Organization: Caltech Archives',
   '',
 );
-if (file_put_contents("{$bag_destination_path}/bag-info.txt", implode("\n", $baginfo)) !== FALSE) {
-  echo "\n✅ successfully created {$bag_destination_path}/bag-info.txt file\n";
+if (file_put_contents("{$bag_destination_path}/HaleGE/bag-info.txt", implode("\n", $baginfo)) !== FALSE) {
+  echo "\n✅ successfully created {$bag_destination_path}/HaleGE/bag-info.txt file\n";
 }
 
-if (file_put_contents("{$bag_destination_path}/manifest-sha512.txt", $manifest) !== FALSE) {
-  echo "\n✅ successfully created {$bag_destination_path}/manifest-sha512.txt file\n";
+if (file_put_contents("{$bag_destination_path}/HaleGE/manifest-sha512.txt", $manifest) !== FALSE) {
+  echo "\n✅ successfully created {$bag_destination_path}/HaleGE/manifest-sha512.txt file\n";
 }
+

@@ -21,15 +21,13 @@ echo "🐞 begin while"
     # move any validated files into a unique processing folder
     processing_directory=${1}/processing_${RANDOM}
 echo "$processing_directory"
-    mkdir -p "$processing"
+    mkdir -p "$processing_directory"
     mv "$1"/validated/HaleGE_* "$processing_directory"/
 
     for file in "$processing_directory"/HaleGE_*; do
 echo "🐞 begin for"
 
         echo ${file}
-
-        # move structure to S3
 
         # get the filename only, without the full path
         filename=${file##*/}
@@ -39,13 +37,21 @@ echo "🐞 begin for"
         # @TODO we could technically parse the beginning of the ${filename} for the
         # 'HaleGE' part, but that seems unnecessary right now
         directory_to_move="${1}/${filename}/HaleGE/data"
+echo "directory to move: ${directory_to_move}"
 
-echo '🐞 aws s3 mv "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude "*.DS_Store*"'
-        aws s3 mv "${directory_to_move}" s3://archives-bagit-tmp/HaleGE/data --recursive --exclude '*.DS_Store*'
+        # move into collection structure
+        mkdir -p "${1}/HaleGE/data"
+        cp -arl "${directory_to_move}" "${1}/HaleGE/"
+
+        # move structure to S3
+echo "🐞 aws s3 cp '${directory_to_move}' s3://archives-hale/HaleGE/data --recursive --exclude '*.DS_Store*' --no-progress"
+        aws s3 cp "${directory_to_move}" s3://archives-hale/HaleGE/data --recursive --exclude '*.DS_Store*' --no-progress
 
         if [[ $? -eq 0 ]]; then
 echo "🐞 rm ${file}"
             rm ${file}
+echo "🐞 rm -r ${1}/${filename}"
+            rm -r "${1}/${filename}"
         fi
 echo "🐞 end for"
     done
@@ -53,7 +59,7 @@ echo "🐞 end for"
     rm -r "$processing_directory"
 
     if [[ -f "$1"/aws-s3-mv.running ]]; then
-echo "🐞 rm "$1"/aws-s3-mv.running"
+echo "🐞 rm ${1}/aws-s3-mv.running"
         rm "$1"/aws-s3-mv.running
     fi
 
@@ -61,3 +67,6 @@ echo "🐞 end while"
 done
 
 echo "🐞 end script"
+
+# NEXT STEPS
+# create a script to run after everything else that deletes empty folders
