@@ -50,8 +50,9 @@ echo "🐞 aws s3 cp '${directory_to_move}' s3://archives-hale/HaleGE/data --rec
         if [[ $? -eq 0 ]]; then
 echo "🐞 rm ${file}"
             rm ${file}
-echo "🐞 rm -r ${1}/${filename}"
-            rm -r "${1}/${filename}"
+# we should not delete the directory because we need the bagit artifacts
+#echo "🐞 rm -r ${1}/${filename}"
+#            rm -r "${1}/${filename}"
         fi
 echo "🐞 end for"
     done
