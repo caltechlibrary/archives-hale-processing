@@ -11,7 +11,6 @@ $bag_destination_path = ''; // /path/to/destination where output directory will 
 $islandora_url = ''; // no trailing slash
 $collection_id = '';
 $source_organization = '';
-$contact_name = '';
 $contact_email = '';
 
 $processes = ''; // for use when calculating checksums in bagit
