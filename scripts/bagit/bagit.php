@@ -184,7 +184,10 @@ foreach ($data as $folder_data) {
 
       $filesize = filesize($page_file_path);
 
-    } // end if
+    }
+    else {
+      exit("🚫 $source_file_path does not exist...\n");
+    }
 
     $filesize_counter = $filesize_counter + $filesize;
     $file_counter++;
