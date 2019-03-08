@@ -71,3 +71,5 @@ echo "🐞 end script"
 
 # NEXT STEPS
 # create a script to run after everything else that deletes empty folders
+
+# validate files on S3 via mounted yas3fs disk

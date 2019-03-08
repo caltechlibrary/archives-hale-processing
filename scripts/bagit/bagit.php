@@ -75,7 +75,13 @@ $folder_timer_start = microtime(TRUE);
 // loop over each record that represents a line in the spreadsheet
 foreach ($data as $folder_data) {
 
+  # skip lines where the first value is blank
   if (empty($folder_data[0])) {
+    continue;
+  }
+
+  # skip lines where there is no reel number
+  if (empty($folder_data[12])) {
     continue;
   }
 
